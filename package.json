@@ -1,0 +1,24 @@
+{
+  "name": "openinstall-react-native",
+  "version": "1.0.1",
+  "description": "openinstall sdk plugin for react-native",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node postInstall.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:OpenInstall/openinstall-react-native.git"
+  },
+  "bugs": {
+    "url": "https://github.com/OpenInstall/openinstall-react-native/issues"
+  },
+  "homepage": "https://github.com/OpenInstall/openinstall-react-native#readme",
+  "keywords": [
+    "openinstall",
+    "react",
+    "native"
+  ],
+  "author": "cooper",
+  "license": "ISC"
+}
