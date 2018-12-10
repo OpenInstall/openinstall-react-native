@@ -14,7 +14,7 @@ react-native link
 ```
 - link的时候如果出现 `Error: Cannot find module 'asap/raw'` 则先执行 `npm install` 再 `react-native link` 就好了
 
-##一、自动集成方式
+## 一、自动集成方式  
 （1）使用自动集成脚本集成代码和部分配置
 ```
 npm run openinstall <yourAppKey> <yourScheme>
@@ -46,7 +46,7 @@ $(SRCROOT)/../node_modules/openinstall-react-native/ios/RCTOpenInstall
 ###1 快速下载
 如果只需要快速下载功能，无需其它功能（携带参数安装、渠道统计、一键拉起），完成sdk初始化即可（自动集成方式或手动集成方式）
 
-###2 一键拉起
+### 2 一键拉起
 #### 导入插件
 请react native端入口js文件中（例如App.js文件）导入：
 ```
@@ -73,7 +73,7 @@ componentWillUnMount() {
 - 第二个函数返回的是map或字典，包含动态安装参数（data）和渠道参数（channel），注意：只有通过渠道二维码或链接安装app后，才会有渠道参数
 - 如果动态安装参数（data）和渠道参数（channel）同时为空，则map返回null
 
-###3 携带参数安装 <span style="margin-left: 5px;display: inline-block;background: red;color: #fff;border-radius: 3px;padding: 2px 3px;font-size: 12px;">高级版功能</span>
+### 3 携带参数安装 <span style="margin-left: 5px;display: inline-block;background: red;color: #fff;border-radius: 3px;padding: 2px 3px;font-size: 12px;">高级版功能</span>
 在需要获取安装参数的位置，导入插件：
 ```
 import OpeninstallModule from 'openinstall-react-native'
@@ -91,7 +91,7 @@ OpeninstallModule.getInstall(10, map => {
 - 如果动态安装参数（data）和渠道参数（channel）同时为空，则map返回null
 - 对iOS，该方法尽量写在业务场景需要参数的位置调用（在业务场景时，网络一般都是畅通的），例如，可以选择在用户注册成功后调用该方法获取参数，对用户进行奖励。原因是iOS首次安装、首次启动的app，会询问用户获取网络权限，用户允许后SDK才能正常联网去获取参数。如果调用过早，可能导致网络权限还未允许就被调用，导致参数无法及时拿到，误以为参数不存在
 
-###4 渠道统计 <span style="margin-left: 5px;display: inline-block;background: red;color: #fff;border-radius: 3px;padding: 2px 3px;font-size: 12px;">高级版功能</span>
+### 4 渠道统计 <span style="margin-left: 5px;display: inline-block;background: red;color: #fff;border-radius: 3px;padding: 2px 3px;font-size: 12px;">高级版功能</span>
 SDK 会自动完成访问量、点击量、安装量、活跃量、留存率等统计工作。
 
 ####（1）上报注册事件
@@ -105,7 +105,7 @@ OpeninstallModule.reportRegister()
 OpeninstallModule.reportEffectPoint('effect_test',1)
 ```
 
-##二、手动集成方式（如果自动集成方式ok的，则无需进行手动集成）
+## 二、手动集成方式（如果自动集成方式ok的，则无需进行手动集成）
 以下分别为iOS和android的手动集成方式
 - 如果在执行自动集成脚本时发生错误，请使用以下手动集成方式。
 
@@ -113,7 +113,7 @@ OpeninstallModule.reportEffectPoint('effect_test',1)
 
 在 `react-native link` 之后，打开 iOS 工程。
 
-####1 相关配置
+#### 1 相关配置
 
 #####（1）初始化配置
 在 `Info.plist` 文件中配置 appKey 键值对，如下：
@@ -150,7 +150,7 @@ OpeninstallModule.reportEffectPoint('effect_test',1)
  </array>
 ```
 
-####2 相关代码
+#### 2 相关代码
 
 （1）AppDelegate.h 中添加如下代码，导入头文件
 ```
@@ -201,7 +201,7 @@ AppDelegate.m 里面添加如下代码：
 
 #### android 检查相关配置
 
-#####1 Checkout settings.gradle
+##### 1 Checkout settings.gradle
 检查 android 项目下的 settings.gradle 配置有没有包含以下内容：
 ```
 include ':app', ':openinstall-react-native', ':openinstall-react-native'
@@ -209,7 +209,7 @@ project(':openinstall-react-native').projectDir = new File(rootProject.projectDi
 
 ```
 
-#####2 检查build.gradle配置
+##### 2 检查build.gradle配置
 检查一下 dependencies 中有没有添加 openinstall-react-native 依赖
 
 ````
@@ -219,7 +219,7 @@ dependencies {
 }
 ````
 
-#####3 检查 app 下的 AndroidManifest 配置
+##### 3 检查 app 下的 AndroidManifest 配置
 your react native project/android/app/AndroidManifest.xml
 
 
