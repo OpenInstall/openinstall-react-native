@@ -43,7 +43,7 @@ $(SRCROOT)/../node_modules/openinstall-react-native/ios/RCTOpenInstall
 ````
 
 ## 使用指南
-###1 快速下载
+### 1 快速下载
 如果只需要快速下载功能，无需其它功能（携带参数安装、渠道统计、一键拉起），完成sdk初始化即可（自动集成方式或手动集成方式）
 
 ### 2 一键拉起
@@ -94,12 +94,12 @@ OpeninstallModule.getInstall(10, map => {
 ### 4 渠道统计 <span style="margin-left: 5px;display: inline-block;background: red;color: #fff;border-radius: 3px;padding: 2px 3px;font-size: 12px;">高级版功能</span>
 SDK 会自动完成访问量、点击量、安装量、活跃量、留存率等统计工作。
 
-####（1）上报注册事件
+#### （1）上报注册事件
 在用户注册成功时，可调用该方法上报注册事件，需要导入'openinstall-react-native'
 ```
 OpeninstallModule.reportRegister()
 ```
-####（2）上报效果点
+#### （2）上报效果点
 两个参数分别为 效果点的ID，string类型，以及 效果点的值，为整型，示例：
 ```
 OpeninstallModule.reportEffectPoint('effect_test',1)
@@ -115,13 +115,13 @@ OpeninstallModule.reportEffectPoint('effect_test',1)
 
 #### 1 相关配置
 
-#####（1）初始化配置
+##### （1）初始化配置
 在 `Info.plist` 文件中配置 appKey 键值对，如下：
 ``` plist
 <key>com.openinstall.APP_KEY</key>
 <string>从openinstall官网后台获取应用的appkey</string>
 ```
-#####（2）universal links配置（iOS9以后推荐使用）
+##### （2）universal links配置（iOS9以后推荐使用）
 
 对于iOS，为确保能正常跳转，AppID必须开启Associated Domains功能，请到[苹果开发者网站](https://developer.apple.com)，选择Certificate, Identifiers & Profiles，选择相应的AppID，开启Associated Domains。注意：当AppID重新编辑过之后，需要更新相应的mobileprovision证书。(详细配置步骤请看[openinstall官网](https://www.openinstall.io)后台文档，universal link从后台获取)，如果已经开启过Associated Domains功能，进行下面操作：
 
@@ -130,7 +130,7 @@ OpeninstallModule.reportEffectPoint('effect_test',1)
 - 打开 `Associated Domains` 开关
 - 添加 openinstall 官网后台中应用对应的关联域名（iOS集成->iOS应用配置->关联域名(Associated Domains)）
 
-#####（3）scheme配置
+##### （3）scheme配置
 
 在 `Info.plist` 文件中，在 `CFBundleURLTypes` 数组中添加应用对应的 `scheme`
 

@@ -1,0 +1,5 @@
+rootProject.name = 'OpenInstallRNDemo'
+include ':openinstall-react-native'
+project(':openinstall-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/openinstall-react-native/android')
+
+include ':app'
