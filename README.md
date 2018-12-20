@@ -73,7 +73,7 @@ componentWillUnMount() {
 - 第二个函数返回的是map或字典，包含动态安装参数（data）和渠道参数（channel），注意：只有通过渠道二维码或链接安装app后，才会有渠道参数
 - 如果动态安装参数（data）和渠道参数（channel）同时为空，则map返回null
 
-### 3 携带参数安装 <span style="margin-left: 5px;display: inline-block;background: red;color: #fff;border-radius: 3px;padding: 2px 3px;font-size: 12px;">高级版功能</span>
+### 3 携带参数安装 <span style="margin-left: 5px;display: inline-block;background: red;color: #fff;border-radius: 3px;padding: 2px 3px;font-size: 12px;">（高级版功能）</span>
 在需要获取安装参数的位置，导入插件：
 ```
 import OpeninstallModule from 'openinstall-react-native'
@@ -91,7 +91,7 @@ OpeninstallModule.getInstall(10, map => {
 - 如果动态安装参数（data）和渠道参数（channel）同时为空，则map返回null
 - 对iOS，该方法尽量写在业务场景需要参数的位置调用（在业务场景时，网络一般都是畅通的），例如，可以选择在用户注册成功后调用该方法获取参数，对用户进行奖励。原因是iOS首次安装、首次启动的app，会询问用户获取网络权限，用户允许后SDK才能正常联网去获取参数。如果调用过早，可能导致网络权限还未允许就被调用，导致参数无法及时拿到，误以为参数不存在
 
-### 4 渠道统计 <span style="margin-left: 5px;display: inline-block;background: red;color: #fff;border-radius: 3px;padding: 2px 3px;font-size: 12px;">高级版功能</span>
+### 4 渠道统计 <span style="margin-left: 5px;display: inline-block;background: red;color: #fff;border-radius: 3px;padding: 2px 3px;font-size: 12px;">（高级版功能）</span>
 SDK 会自动完成访问量、点击量、安装量、活跃量、留存率等统计工作。
 
 #### （1）上报注册事件
