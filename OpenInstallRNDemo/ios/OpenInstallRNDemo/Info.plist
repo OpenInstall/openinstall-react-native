@@ -29,7 +29,7 @@
 			<string>openinstall</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>hzgz69</string>
+				<string>填入shceme</string>
 			</array>
 		</dict>
 	</array>
@@ -67,6 +67,6 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>com.openinstall.APP_KEY</key>
-	<string>hzgz69</string>
+	<string>填入您的appKey</string>
 </dict>
 </plist>

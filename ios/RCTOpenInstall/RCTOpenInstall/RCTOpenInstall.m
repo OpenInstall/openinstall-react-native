@@ -64,15 +64,8 @@ RCT_EXPORT_METHOD(getInstall:(int)s completion:(RCTResponseSenderBlock)callback)
             callback(params);
             return;
         }
-        NSString *channelID = @"";
-        NSString *datas = @"";
-        if (appData.data) {
-            datas = [self jsonStringWithObject:appData.data];
-        }
-        if (appData.channelCode) {
-            channelID = appData.channelCode;
-        }
-        NSArray *params = @[@{@"channel":channelID,@"data":datas}];
+        NSDictionary *dic = @{@"channel":appData.channelCode?:@"",@"data":appData.data?:@""};
+        NSArray *params = @[dic];
         callback(params);
     }];
 }
@@ -84,15 +77,7 @@ RCT_EXPORT_METHOD(getInstall:(int)s completion:(RCTResponseSenderBlock)callback)
         }
         return;
     }
-    NSString *channelID = @"";
-    NSString *datas = @"";
-    if (appData.data) {
-        datas = [self jsonStringWithObject:appData.data];
-    }
-    if (appData.channelCode) {
-        channelID = appData.channelCode;
-    }
-    NSDictionary *params = @{@"channel":channelID,@"data":datas};
+    NSDictionary *params = @{@"channel":appData.channelCode?:@"",@"data":appData.data?:@""};
     if (self.bridge) {
         [self.bridge.eventDispatcher sendAppEventWithName:OpeninstallWakeupCallBack body:params];
     }else{
@@ -125,22 +110,5 @@ RCT_EXPORT_METHOD(reportEffectPoint:(NSString *)effectID effectValue:(NSInteger)
     [[OpenInstallSDK defaultManager] reportEffectPoint:effectID effectValue:effectValue];
 }
 
-- (NSString *)jsonStringWithObject:(id)jsonObject{
-    // 将字典或者数组转化为JSON串
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:&error];
-    
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData
-                                                 encoding:NSUTF8StringEncoding];
-    
-    if ([jsonString length] > 0 && error == nil){
-        jsonString = [jsonString stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-        return jsonString;
-    }else{
-        return @"";
-    }
-}
 
 @end

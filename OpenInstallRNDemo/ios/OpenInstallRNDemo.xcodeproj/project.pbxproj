@@ -724,7 +724,6 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = K7RVF65TN3;
 						SystemCapabilities = {
 							com.apple.SafariKeychain = {
 								enabled = 1;
@@ -1278,7 +1277,7 @@
 				CODE_SIGN_ENTITLEMENTS = OpenInstallRNDemo/OpenInstallRNDemo.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
-				DEVELOPMENT_TEAM = K7RVF65TN3;
+				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/openinstall-react-native/ios/RCTOpenInstall",
@@ -1291,7 +1290,6 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.fmc.fenmiao;
 				PRODUCT_NAME = OpenInstallRNDemo;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -1303,7 +1301,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = OpenInstallRNDemo/OpenInstallRNDemo.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = K7RVF65TN3;
+				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/openinstall-react-native/ios/RCTOpenInstall",
@@ -1316,7 +1314,6 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.fmc.fenmiao;
 				PRODUCT_NAME = OpenInstallRNDemo;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
