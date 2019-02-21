@@ -41,7 +41,7 @@ your react native project/android/app/AndroidManifest.xml
 ```
 
 在AndroidManifest.xml的拉起页面activity标签中添加intent-filter（一般为MainActivity），配置scheme，用于浏览器中拉起  
-- `scheme` 详细获取位置：openinstall应用控制台->Android集成->Android应用配置
+(scheme详细获取位置：openinstall应用控制台->Android集成->Android应用配置)  
 
 ```
 <activity
