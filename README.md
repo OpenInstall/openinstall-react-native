@@ -21,17 +21,19 @@ npm run openinstall <yourAppKey> <yourScheme>
 ```
 - yourAppKey指的是你在openinstall官方账号后台，创建应用后分配的AppKey
 - yourScheme指的是你在openinstall官方账号后台，创建应用后分配的scheme  
+(scheme详细获取位置：openinstall应用控制台->Android集成->Android应用配置，iOS同理）  
 
 举例：
 ```
 npm run openinstall e7iomw rc8tey
 ```
 （2）xcode配置（只对iOS）  
-在 iOS 工程中，如果要使用universal links(通用链接)的拉起功能，需要开启 Associated Domains功能，请到[苹果开发者网站](https://developer.apple.com)，选择Certificate, Identifiers & Profiles，选择相应的AppID，开启Associated Domains。注意：当AppID重新编辑过之后，需要更新相应的mobileprovision证书。(详细配置步骤请看[openinstall官网](https://www.openinstall.io)后台文档，universal link关联域名从后台获取)，如果已经开启过Associated Domains功能，进行下面操作：
+
+在 iOS 工程中，如果要使用universal links(通用链接)的拉起功能，需要开启 Associated Domains功能，请到[苹果开发者网站](https://developer.apple.com)，选择Certificate, Identifiers & Profiles，选择相应的AppID，开启Associated Domains。注意：当AppID重新编辑过之后，需要更新相应的mobileprovision证书。(详细配置步骤请看[iOS集成指南](https://www.openinstall.io/doc/ios_sdk.html))，如果已经开启过Associated Domains功能，进行下面操作：  
 - 在左侧导航器中点击您的项目
 - 选择 `Capabilities` 标签
 - 打开 `Associated Domains` 开关
-- 添加 openinstall 官网后台中应用对应的关联域名（iOS集成->iOS应用配置->关联域名(Associated Domains)）
+- 添加 openinstall 官网后台中应用对应的关联域名（openinstall应用控制台->iOS集成->iOS应用配置->关联域名(Associated Domains)）
 
 #### 注意：
 
@@ -73,7 +75,7 @@ componentWillUnMount() {
 - 第二个函数返回的是map或字典，包含动态安装参数（data）和渠道参数（channel），注意：只有通过渠道二维码或链接安装app后，才会有渠道参数
 - 如果动态安装参数（data）和渠道参数（channel）同时为空，则map返回null
 
-### 3 携带参数安装 <span style="margin-left: 5px;display: inline-block;background: red;color: #fff;border-radius: 3px;padding: 2px 3px;font-size: 12px;">（高级版功能）</span>
+### 3 携带参数安装（高级版功能）
 在需要获取安装参数的位置，导入插件：
 ```
 import OpeninstallModule from 'openinstall-react-native'
@@ -91,7 +93,7 @@ OpeninstallModule.getInstall(10, map => {
 - 如果动态安装参数（data）和渠道参数（channel）同时为空，则map返回null
 - 对iOS，该方法尽量写在业务场景需要参数的位置调用（在业务场景时，网络一般都是畅通的），例如，可以选择在用户注册成功后调用该方法获取参数，对用户进行奖励。原因是iOS首次安装、首次启动的app，会询问用户获取网络权限，用户允许后SDK才能正常联网去获取参数。如果调用过早，可能导致网络权限还未允许就被调用，导致参数无法及时拿到，误以为参数不存在
 
-### 4 渠道统计 <span style="margin-left: 5px;display: inline-block;background: red;color: #fff;border-radius: 3px;padding: 2px 3px;font-size: 12px;">（高级版功能）</span>
+### 4 渠道统计（高级版功能）
 SDK 会自动完成访问量、点击量、安装量、活跃量、留存率等统计工作。
 
 #### （1）上报注册事件
@@ -117,24 +119,25 @@ OpeninstallModule.reportEffectPoint('effect_test',1)
 
 ##### （1）初始化配置
 在 `Info.plist` 文件中配置 appKey 键值对，如下：
-``` plist
+``` xml
 <key>com.openinstall.APP_KEY</key>
 <string>从openinstall官网后台获取应用的appkey</string>
 ```
 ##### （2）universal links配置（iOS9以后推荐使用）
 
-对于iOS，为确保能正常跳转，AppID必须开启Associated Domains功能，请到[苹果开发者网站](https://developer.apple.com)，选择Certificate, Identifiers & Profiles，选择相应的AppID，开启Associated Domains。注意：当AppID重新编辑过之后，需要更新相应的mobileprovision证书。(详细配置步骤请看[openinstall官网](https://www.openinstall.io)后台文档，universal link从后台获取)，如果已经开启过Associated Domains功能，进行下面操作：
+对于iOS，为确保能正常跳转，AppID必须开启Associated Domains功能，请到[苹果开发者网站](https://developer.apple.com)，选择Certificate, Identifiers & Profiles，选择相应的AppID，开启Associated Domains。注意：当AppID重新编辑过之后，需要更新相应的mobileprovision证书。(图文配置步骤请看[iOS集成指南](https://www.openinstall.io/doc/ios_sdk.html))，如果已经开启过Associated Domains功能，进行下面操作：
 
 - 在左侧导航器中点击您的项目
 - 选择 `Capabilities` 标签
 - 打开 `Associated Domains` 开关
-- 添加 openinstall 官网后台中应用对应的关联域名（iOS集成->iOS应用配置->关联域名(Associated Domains)）
+- 添加 openinstall 官网后台中应用对应的关联域名（openinstall应用控制台->iOS集成->iOS应用配置->关联域名(Associated Domains)）
 
 ##### （3）scheme配置
 
-在 `Info.plist` 文件中，在 `CFBundleURLTypes` 数组中添加应用对应的 `scheme`
+在 `Info.plist` 文件中，在 `CFBundleURLTypes` 数组中添加应用对应的 `scheme`，或者在工程“TARGETS-Info-URL Types”里快速添加，图文配置请看[iOS集成指南](https://www.openinstall.io/doc/ios_sdk.html)  
+（scheme的值详细获取位置：openinstall应用控制台->iOS集成->iOS应用配置）
 
-``` plist
+``` xml
  <key>CFBundleURLTypes</key>
  <array>
   <dict>
@@ -246,6 +249,7 @@ your react native project/android/app/AndroidManifest.xml
 
 ```
 ##### 注意:OPENINSTALL_APPKEY为openinstall官方分配的appKey，OPENINSTALL_SCHEME为openinstall官方分配的scheme
+(scheme的值详细获取位置：openinstall应用控制台->Android集成->Android应用配置)  
 
 现在重新 sync 一下项目，应该能看到 openinstall-react-native作为 android Library 项目导进来了。
 
