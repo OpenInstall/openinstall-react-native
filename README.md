@@ -14,7 +14,9 @@ react-native link
 ```
 - link的时候如果出现 `Error: Cannot find module 'asap/raw'` 则先执行 `npm install` 再 `react-native link` 就好了
 
-## 一、自动集成方式  
+## 一、自动集成方式
+### 如自动集成方式失败，无需惊慌，请参考手动集成方式 [手动集成文档](https://github.com/OpenInstall/openinstall-react-native/tree/master/documents)
+
 （1）使用自动集成脚本集成代码和部分配置
 ```
 npm run openinstall <yourAppKey> <yourScheme>
@@ -36,8 +38,6 @@ npm run openinstall e7iomw rc8tey
 - 添加 openinstall 官网后台中应用对应的关联域名（openinstall应用控制台->iOS集成->iOS应用配置->关联域名(Associated Domains)）
 
 #### 注意：
-
-- 如果在执行自动集成脚本时发生错误，请使用文档后面提供的手动集成方式。
 
 - 在 iOS 工程中如果找不到头文件可能要在 TARGETS-> BUILD SETTINGS -> Search Paths -> Header Search Paths 添加如下如路径：
 ````
@@ -106,151 +106,4 @@ OpeninstallModule.reportRegister()
 ```
 OpeninstallModule.reportEffectPoint('effect_test',1)
 ```
-
-## 二、手动集成方式（如果自动集成方式ok的，则无需进行手动集成）
-以下分别为iOS和android的手动集成方式
-- 如果在执行自动集成脚本时发生错误，请使用以下手动集成方式。
-
-### iOS 手动集成方式
-
-在 `react-native link` 之后，打开 iOS 工程。
-
-#### 1 相关配置
-
-##### （1）初始化配置
-在 `Info.plist` 文件中配置 appKey 键值对，如下：
-``` xml
-<key>com.openinstall.APP_KEY</key>
-<string>从openinstall官网后台获取应用的appkey</string>
-```
-##### （2）universal links配置（iOS9以后推荐使用）
-
-对于iOS，为确保能正常跳转，AppID必须开启Associated Domains功能，请到[苹果开发者网站](https://developer.apple.com)，选择Certificate, Identifiers & Profiles，选择相应的AppID，开启Associated Domains。注意：当AppID重新编辑过之后，需要更新相应的mobileprovision证书。(图文配置步骤请看[iOS集成指南](https://www.openinstall.io/doc/ios_sdk.html))，如果已经开启过Associated Domains功能，进行下面操作：
-
-- 在左侧导航器中点击您的项目
-- 选择 `Capabilities` 标签
-- 打开 `Associated Domains` 开关
-- 添加 openinstall 官网后台中应用对应的关联域名（openinstall应用控制台->iOS集成->iOS应用配置->关联域名(Associated Domains)）
-
-##### （3）scheme配置
-
-在 `Info.plist` 文件中，在 `CFBundleURLTypes` 数组中添加应用对应的 `scheme`，或者在工程“TARGETS-Info-URL Types”里快速添加，图文配置请看[iOS集成指南](https://www.openinstall.io/doc/ios_sdk.html)  
-（scheme的值详细获取位置：openinstall应用控制台->iOS集成->iOS应用配置）
-
-``` xml
- <key>CFBundleURLTypes</key>
- <array>
-  <dict>
-    <key>CFBundleTypeRole</key>
-    <string>Editor</string>
-    <key>CFBundleURLName</key>
-    <string>openinstall</string>
-    <key>CFBundleURLSchemes</key>
-    <array>
-      <string>"从openinstall官网后台获取应用的scheme"</string>
-    </array>
-  </dict>
- </array>
-```
-
-#### 2 相关代码
-
-（1）AppDelegate.h 中添加如下代码，导入头文件
-```
-#import <RCTOpenInstall/RCTOpenInstall.h>
-```
-
-（2）初始化sdk的代码
-AppDelegate.m 的 `didFinishLaunchingWithOptions` 方法里面添加如下代码：
-```
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
- //初始化openinstall sdk
- [OpenInstallSDK initWithDelegate:[RCTOpenInstall allocWithZone:nil]];
-
- return YES;
-}
-```
-
-（3）scheme相关代码
-AppDelegate.m 里面添加如下代码：
-```
-//iOS9以上，会优先走这个方法
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options{
- //scheme1
- [OpenInstallSDK handLinkURL:url];
- return YES;
-}
-//适用目前所有iOS版本
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation{
- //scheme2
- [OpenInstallSDK handLinkURL:url];
- return YES;
-}
-```
-
-（4）universal link相关代码
-AppDelegate.m 里面添加如下代码：
-```
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler{
- //univeral link
- [OpenInstallSDK continueUserActivity:userActivity];
- return YES;
-}
-```
-
-### android 手动集成方式
-在 `react-native link` 之后，打开 android 工程。
-
-#### android 检查相关配置
-
-##### 1 Checkout settings.gradle
-检查 android 项目下的 settings.gradle 配置有没有包含以下内容：
-```
-include ':app', ':openinstall-react-native', ':openinstall-react-native'
-project(':openinstall-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/openinstall-react-native/android')
-
-```
-
-##### 2 检查build.gradle配置
-检查一下 dependencies 中有没有添加 openinstall-react-native 依赖
-
-````
-dependencies {
-    ...
-    implementation project(':openinstall-react-native')  
-}
-````
-
-##### 3 检查 app 下的 AndroidManifest 配置
-your react native project/android/app/AndroidManifest.xml
-
-
-在AndroidManifest.xml的application标签内设置AppKey
-```
- <meta-data android:name="com.openinstall.APP_KEY" android:value="OPENINSTALL_APPKEY"/>  
-
-```
-
-
-在AndroidManifest.xml的拉起页面activity标签中添加intent-filter（一般为MainActivity），配置scheme，用于浏览器中拉起
-
-```
-<activity
-    android:name=".MainActivity"
-    android:launchMode="singleTask">
-    <intent-filter>
-        <action android:name="android.intent.action.VIEW"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="OPENINSTALL_SCHEME"/>
-    </intent-filter>
-</activity>
-
-```
-##### 注意:OPENINSTALL_APPKEY为openinstall官方分配的appKey，OPENINSTALL_SCHEME为openinstall官方分配的scheme
-(scheme的值详细获取位置：openinstall应用控制台->Android集成->Android应用配置)  
-
-现在重新 sync 一下项目，应该能看到 openinstall-react-native作为 android Library 项目导进来了。
-
 
