@@ -42,7 +42,7 @@ function codeAppDelegate(path){
 		var hasCoded = rf.match(/OpenInstallSDK initWithDelegate/);
 		if(hasCoded == null){
 			rf = rf.replace(matchFinishLaunching[0], matchFinishLaunching[0] + "\n\t" 
-			+ "[OpenInstallSDK initWithDelegate:self];");
+			+ "[OpenInstallSDK initWithDelegate:[RCTOpenInstall allocWithZone:nil]];");
 		}
 	}else{
 		console.log("没有匹配到 didFinishLaunchingWithOptions");
@@ -218,12 +218,12 @@ function configManifestXml(path){
 function configBuildGradle(path){
 	var err = false;
 	var rf = fs.readFileSync(path, "utf-8");
-	var alreadyConfig = rf.match(/.*react-native-openinstall.*/);
+	var alreadyConfig = rf.match(/.*openinstall-react-native.*/);
 	if(alreadyConfig == null){
 		var matchDepend = rf.match(/\n.*dependencies {\n/);
 		if(matchDepend != null){
 			rf = rf.replace(matchDepend[0], matchDepend[0] 
-			+ "\n\timplementation project(\":react-native-openinstall\")\n");
+			+ "\n\timplementation project(\":openinstall-react-native\")\n");
 		}else{
 			console.log("没有匹配到 dependencies");
 			err = true;
@@ -242,13 +242,13 @@ function configBuildGradle(path){
 function configSettingsGradle(path){
 	var err = false;
 	var rf = fs.readFileSync(path, "utf-8");
-	var alreadyConfig = rf.match(/.*react-native-openinstall.*/);
+	var alreadyConfig = rf.match(/.*openinstall-react-native.*/);
 	if(alreadyConfig == null){
 		var matchInclude = rf.match(/\n.*include.*':app'/);
 		if(matchInclude != null){
-			rf = rf.replace(matchInclude[0], "\nproject(':react-native-openinstall').projectDir = "
-			+ "new File(rootProject.projectDir, '../node_modules/react-native-openinstall/android')" 
-			+ matchInclude[0] + ", ':react-native-openinstall'");
+			rf = rf.replace(matchInclude[0], "\nproject(':openinstall-react-native').projectDir = "
+			+ "new File(rootProject.projectDir, '../node_modules/openinstall-react-native/android')" 
+			+ matchInclude[0] + ", ':openinstall-react-native'");
 		}else{
 			cosole.log("没有匹配到 include ':app'");
 			err = true;
@@ -312,4 +312,3 @@ function fullPath(dir, files) {
     return spath.join(dir, f);
   });
 }
-
