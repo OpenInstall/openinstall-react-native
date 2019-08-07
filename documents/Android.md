@@ -3,10 +3,10 @@
 
 ##### 1 检查build.gradle配置
 检查一下 dependencies 中有没有添加 openinstall-react-native 依赖。  
-your react native project/android/app/build.gradle
+project/android/app/build.gradle
 
 
-````
+```
 android {
     defaultConfig {
         applicationId "yourApplicationId"
@@ -21,18 +21,17 @@ dependencies {
     implementation project(':openinstall-react-native')  // 添加 openinstall 依赖
     implementation "com.facebook.react:react-native:+"  // From node_modules
 }
-````
+```
 
 ##### 2 检查settings.gradle配置
 检查 android 项目下的 settings.gradle 配置有没有包含以下内容：  
-settings.gradle  
-
-include ':app', ':openinstall-react-native', ':openinstall-react-native'
+project/android/settings.gradle  
+'''
 project(':openinstall-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/openinstall-react-native/android')
-
+include ':app', ':openinstall-react-native'
+'''
 ##### 3 检查 app 下的 AndroidManifest 配置
-your react native project/android/app/AndroidManifest.xml
-
+project/android/app/AndroidManifest.xml
 
 在AndroidManifest.xml的application标签内设置AppKey  
 ```
