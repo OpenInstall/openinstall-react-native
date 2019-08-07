@@ -26,10 +26,10 @@ dependencies {
 ##### 2 检查settings.gradle配置
 检查 android 项目下的 settings.gradle 配置有没有包含以下内容：  
 project/android/settings.gradle  
-'''
+```
 project(':openinstall-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/openinstall-react-native/android')
 include ':app', ':openinstall-react-native'
-'''
+```
 ##### 3 检查 app 下的 AndroidManifest 配置
 project/android/app/AndroidManifest.xml
 
