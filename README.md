@@ -14,6 +14,17 @@ react-native link
 ```
 - link的时候如果出现 `Error: Cannot find module 'asap/raw'` 则先执行 `npm install` 再 `react-native link` 就好了
 
+如果你的项目是通过Cocoapods来集成React Native（即原生应用集成react-native），可通过如下步骤安装本插件。（注意：使用 pod 就无须执行 react-native link 了，否则会有冲突。）
+
+1. 在ios/Podfile文件中添加如下代码：
+```
+ pod 'openinstall-react-native', :path => '../node_modules/openinstall-react-native'
+```
+2. 在Podfile文件所在目录下执行命令：
+```
+ pod install
+```
+
 ## 一、自动集成方式
 ### 如自动集成方式失败，无需惊慌，请参考手动集成方式 [手动集成文档](https://github.com/OpenInstall/openinstall-react-native/tree/master/documents)
 
