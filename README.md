@@ -9,6 +9,9 @@ openinstall-react-native 是openinstall官方开发的 React Native 插件，使
 ```
 npm install openinstall-react-native --save
 ```
+
+**React Native 0.60 开始，会自动 link 原生模块，请直接参考手动集成**  
+
 ```
 react-native link
 ```
