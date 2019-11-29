@@ -1,6 +1,8 @@
 ### iOS 手动集成方式
 
-在 `react-native link` 之后，打开 iOS 工程。
+在 `react-native link` 之后，打开 iOS 工程。  
+
+也可不执行 `react-native link` ，通过手动拖拽openinstall-react-native插件 `RCTOpenInstall.xcodeproj` 到xcode工程中，这部分可参考[官方文档](https://reactnative.cn/docs/linking-libraries-ios/)或[facebook英文文档](https://facebook.github.io/react-native/docs/linking-libraries-ios)
 
 #### 1 相关配置
 
