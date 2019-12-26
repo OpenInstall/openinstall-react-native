@@ -33,14 +33,13 @@ export default class openinstall{
         cb(result)
       }
     )
-    if (Platform.OS == 'ios'){
-      listeners[cb] = DeviceEventEmitter.addListener(
-        receiveWakeUpEvent,
-        result => {
-         cb(result)
-        }
-      )
-    }
+	listeners[cb] = DeviceEventEmitter.addListener(
+		receiveWakeUpEvent,
+		result => {
+			cb(result)
+		}
+	)
+    
   }
 
  /**

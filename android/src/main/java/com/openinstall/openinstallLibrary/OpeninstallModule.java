@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.fm.openinstall.OpenInstall;
 import com.fm.openinstall.listener.AppInstallAdapter;
 import com.fm.openinstall.listener.AppWakeUpAdapter;
@@ -32,37 +33,46 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onNewIntent(Intent intent) {
-                Activity currentActivity = getCurrentActivity();
-                if (currentActivity != null) {
-                    Log.d("OpenInstallModule", "onNewIntent" );
-                    currentActivity.setIntent(intent);
-                }
+                Log.d("OpenInstallModule", "onNewIntent");
+                getWakeUp(intent, null);
             }
         });
     }
 
     @ReactMethod
     public void getWakeUp(final Callback successBack) {
-        Log.d("OpenInstallModule", "getWakeUp" );
+        Log.d("OpenInstallModule", "getWakeUp");
         Activity currentActivity = getCurrentActivity();
         if (currentActivity != null) {
             Intent intent = currentActivity.getIntent();
-            OpenInstall.getWakeUp(intent, new AppWakeUpAdapter() {
-                @Override
-                public void onWakeUp(AppData appData) {
-                    if (appData != null) {
-                        Log.d("OpenInstallModule", "getWakeUp : wakeupData = " + appData.toString());
-                        String channel = appData.getChannel();
-                        String data = appData.getData();
-                        WritableMap params = Arguments.createMap();
-                        params.putString("channel", channel);
-                        params.putString("data", data);
-                        successBack.invoke(params);
-                    }
-                }
-            });
+            getWakeUp(intent, successBack);
         }
 
+    }
+
+    private void getWakeUp(Intent intent, final Callback callback) {
+        OpenInstall.getWakeUp(intent, new AppWakeUpAdapter() {
+            @Override
+            public void onWakeUp(AppData appData) {
+                if (appData != null) {
+                    Log.d("OpenInstallModule", "getWakeUp : wakeupData = " + appData.toString());
+                    String channel = appData.getChannel();
+                    String data = appData.getData();
+                    WritableMap params = Arguments.createMap();
+                    params.putString("channel", channel);
+                    params.putString("data", data);
+
+                    if (callback == null) {
+                        getReactApplicationContext()
+                                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                .emit("OpeninstallWakeupCallBack", params);
+                    } else {
+                        callback.invoke(params);
+                    }
+
+                }
+            }
+        });
     }
 
     @Override
@@ -78,7 +88,7 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void getInstall(Integer time, final Callback callback) {
-        Log.d("OpenInstallModule", "getInstall" );
+        Log.d("OpenInstallModule", "getInstall");
         OpenInstall.getInstall(new AppInstallAdapter() {
             @Override
             public void onInstall(AppData appData) {
@@ -99,13 +109,13 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void reportRegister() {
-        Log.d("OpenInstallModule", "reportRegister" );
+        Log.d("OpenInstallModule", "reportRegister");
         OpenInstall.reportRegister();
     }
 
     @ReactMethod
     public void reportEffectPoint(String pointId, Integer pointValue) {
-        Log.d("OpenInstallModule", "reportEffectPoint" );
+        Log.d("OpenInstallModule", "reportEffectPoint");
         if (!TextUtils.isEmpty(pointId) && pointValue >= 0) {
             OpenInstall.reportEffectPoint(pointId, pointValue);
         }
