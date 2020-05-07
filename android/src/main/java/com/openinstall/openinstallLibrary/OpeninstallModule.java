@@ -104,7 +104,7 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
                     callback.invoke(e);
                 }
             }
-        }, time * 1000);
+        }, time);
     }
 
     @ReactMethod
