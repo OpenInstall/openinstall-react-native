@@ -10,7 +10,7 @@ openinstall-react-native 是openinstall官方开发的 React Native 插件，使
 npm install openinstall-react-native --save
 ```
 
-**React Native 0.60 开始，会自动 link 原生模块，请直接参考手动集成**  
+**React Native 0.60 开始，会自动 link 原生模块**  
 
 ```
 react-native link
@@ -45,7 +45,7 @@ npm run openinstall e7iomw rc8tey
 ```
 （2）xcode配置（只对iOS）  
 
-在 iOS 工程中，如果要使用universal links(通用链接)的拉起功能，需要开启 Associated Domains功能，请到[苹果开发者网站](https://developer.apple.com)，选择Certificate, Identifiers & Profiles，选择相应的AppID，开启Associated Domains。注意：当AppID重新编辑过之后，需要更新相应的mobileprovision证书。(详细配置步骤请看[iOS集成指南](https://www.openinstall.io/doc/ios_sdk.html))，如果已经开启过Associated Domains功能，进行下面操作：  
+在 iOS 工程中，如果要使用universal links(通用链接)的拉起功能，需要开启 Associated Domains功能，请到[苹果开发者网站](https://developer.apple.com)，选择Certificate, Identifiers & Profiles，选择相应的AppID，开启Associated Domains。注意：当AppID重新编辑过之后，需要更新相应的mobileprovision证书。(详细配置步骤请看[React-Native接入指南](https://www.openinstall.io/doc/RN_sdk.html))，如果已经开启过Associated Domains功能，进行下面操作：  
 - 在左侧导航器中点击您的项目
 - 选择 `Capabilities` 标签
 - 打开 `Associated Domains` 开关

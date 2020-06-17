@@ -16,6 +16,8 @@ if(schema == undefined || schema == null){
 	schema = appKey;
 }
 
+var podfileExsit;
+
 console.log("\n------------  开始自动配置  ------------");
 console.log("---  如自动配置失败，请使用手动配置  ---\n");
 
@@ -28,9 +30,13 @@ function importHeaderFile(path){
 	if (hasImport != null) {
 		return
 	}
-	rf = rf.replace("#import <UIKit/UIKit.h>","#import <UIKit/UIKit.h>\n#import <RCTOpenInstall/RCTOpenInstall.h>");
-	fs.writeFileSync(path, rf, "utf-8");
+	if (podfileExsit != null) {
+		rf = rf.replace("#import <UIKit/UIKit.h>","#import <UIKit/UIKit.h>\n#import <openinstall-react-native/RCTOpenInstall.h>");
+	}else{
+		rf = rf.replace("#import <UIKit/UIKit.h>","#import <UIKit/UIKit.h>\n#import <RCTOpenInstall/RCTOpenInstall.h>");
+	}
 
+	fs.writeFileSync(path, rf, "utf-8");
 	console.log(path + " 头文件导入成功\n");
 }
 //编写代码
@@ -144,8 +150,13 @@ var projectName;
 // find Project Dir
 traversalFile(spath.resolve("./ios"), 1, function(f, s){
 	var xcodeproj = (/(\S+)?\.xcodeproj/im).exec(f);
+	var xcworkspace = (/(\S+)?\.xcworkspace/im).exec(f);
 	if(xcodeproj != null){
 		projectName = xcodeproj[1];
+	}
+	if(xcworkspace != null){
+		podfileExsit = xcworkspace[1];
+		//console.log("find xcworkspace: " + podfileExsit);
 	}
 })
 //遍历ios工程目录

@@ -1,8 +1,9 @@
 ### iOS 手动集成方式
 
-在 `react-native link` 之后，打开 iOS 工程。  
+- 在React Native < 0.60版本下， `react-native link` 之后，打开 iOS 工程  
+- 在React Native >= 0.60版本下，通过pod安装插件后，打开iOS工程  
 
-也可不执行 `react-native link` ，通过手动拖拽openinstall-react-native插件 `RCTOpenInstall.xcodeproj` 到xcode工程中，这部分可参考[官方文档](https://reactnative.cn/docs/linking-libraries-ios/)或[facebook英文文档](https://facebook.github.io/react-native/docs/linking-libraries-ios)
+也可不执行 `react-native link` 或cocoapod安装，通过手动拖拽openinstall-react-native插件 `RCTOpenInstall.xcodeproj` 到xcode工程中，这部分可参考[官方文档](https://reactnative.cn/docs/linking-libraries-ios/)或[facebook英文文档](https://facebook.github.io/react-native/docs/linking-libraries-ios)
 
 #### 1 相关配置
 
@@ -42,11 +43,20 @@
  </array>
 ```
 
+##### 注意：
+
+- 在 iOS 工程中如果找不到头文件可能要在 TARGETS-> BUILD SETTINGS -> Search Paths -> Header Search Paths 添加如下如路径：
+````
+$(SRCROOT)/../node_modules/openinstall-react-native/ios/RCTOpenInstall
+````
+
 #### 2 相关代码
 
 （1）AppDelegate.h 中添加如下代码，导入头文件
 ```
 #import <RCTOpenInstall/RCTOpenInstall.h>
+//通过cocoapod安装插件头文件路径不一样，如下
+#import <openinstall-react-native/RCTOpenInstall.h>
 ```
 
 （2）初始化sdk的代码
@@ -66,13 +76,13 @@ AppDelegate.m 里面添加如下代码：
 ```
 //iOS9以上，会优先走这个方法
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options{
- //scheme1
+ //openURL1
  [OpenInstallSDK handLinkURL:url];
  return YES;
 }
 //适用目前所有iOS版本
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation{
- //scheme2
+ //openURL2
  [OpenInstallSDK handLinkURL:url];
  return YES;
 }
