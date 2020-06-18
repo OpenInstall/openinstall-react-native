@@ -19,7 +19,7 @@
 
 //#define OpenInstallWakeUpCallBackNotification @"OpenInstallWakeUpCallBackNotification"
 
-@interface RCTOpenInstall : NSObject<RCTBridgeModule>
+@interface RCTOpenInstall : NSObject<RCTBridgeModule,OpenInstallDelegate>
 
-+ (id)allocWithZone:(NSZone *)zone;
++ (id<OpenInstallDelegate> _Nonnull)allocWithZone:(NSZone *_Nullable)zone;
 @end

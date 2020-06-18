@@ -29,7 +29,7 @@
 
 #define OpeninstallWakeupCallBack @"OpeninstallWakeupCallBack"
 
-@interface RCTOpenInstall ()<OpenInstallDelegate>
+@interface RCTOpenInstall ()
 @property (nonatomic, strong)NSDictionary *wakeUpParams;
 @property (nonatomic, assign)BOOL notFirstLoad;
 @end
