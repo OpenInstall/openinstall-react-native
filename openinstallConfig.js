@@ -17,6 +17,7 @@ if(schema == undefined || schema == null){
 }
 
 var podfileExsit;
+var autoLink;
 
 console.log("\n------------  开始自动配置  ------------");
 console.log("---  如自动配置失败，请使用手动配置  ---\n");
@@ -179,6 +180,7 @@ traversalFile(projectName?projectName:spath.resolve("./ios/"), 10, function(f, s
 })
 
 ////////////////  Android配置  ///////////////
+
 //配置AndroidManifest.xml中的appkey和scheme
 function configManifestXml(path){
 	var err = false;
@@ -225,81 +227,16 @@ function configManifestXml(path){
 		console.log(path + " 配置完成\n");
 	}
 }
-//配置app/build.gradle
-function configBuildGradle(path){
-	var err = false;
-	var rf = fs.readFileSync(path, "utf-8");
-	var alreadyConfig = rf.match(/.*openinstall-react-native.*/);
-	if(alreadyConfig == null){
-		var matchDepend = rf.match(/\n.*dependencies {\n/);
-		if(matchDepend != null){
-			rf = rf.replace(matchDepend[0], matchDepend[0] 
-			+ "\n\timplementation project(\":openinstall-react-native\")\n");
-		}else{
-			console.log("没有匹配到 dependencies");
-			err = true;
-		}
-	}
-
-	if(err){
-		console.error(path + " 导入依赖失败，请参考日志手动修改\n");
-	}else{
-		fs.writeFileSync(path, rf, "utf-8");
-		console.log(path + " 导入依赖成功\n");
-	}
 	
-}
-//配置settings.gradle
-function configSettingsGradle(path){
-	var err = false;
-	var rf = fs.readFileSync(path, "utf-8");
-	var alreadyConfig = rf.match(/.*openinstall-react-native.*/);
-	if(alreadyConfig == null){
-		var matchInclude = rf.match(/\n.*include.*':app'/);
-		if(matchInclude != null){
-			rf = rf.replace(matchInclude[0], "\nproject(':openinstall-react-native').projectDir = "
-			+ "new File(rootProject.projectDir, '../node_modules/openinstall-react-native/android')" 
-			+ matchInclude[0] + ", ':openinstall-react-native'");
-		}else{
-			cosole.log("没有匹配到 include ':app'");
-			err = true;
-		}
-	}
-
-	if(err){
-		console.error(path + " 配置module失败，请参考日志手动修改\n");
-	}else{
-		fs.writeFileSync(path, rf, "utf-8");
-		console.log(path + " 配置module成功\n");
-	}
-
-}
-
-//遍历项目根目录查找 settings.gradle
-traversalFile(spath.resolve("./android/"), 1, function(f, s){
-	var settingsGradle = f.match(/settings\.gradle/);
-	if(settingsGradle != null){
-		// console.log("find settings.gradle : " + f);
-		configSettingsGradle(f);
-	}
-});
 //遍历 app module
-traversalFile(spath.resolve("./android/app/"), 10, function(f, s){
+traversalFile(spath.resolve("./android/app/src/main/"), 5, function(f, s){
 	var manifestXml = f.match(/AndroidManifest\.xml/);
 	if(manifestXml != null){
-		//排除掉build目录
-		if(f.match(/\\build\\/) != null){
-			return;
-		}
 		// console.log("find AndroidManifest.xml : " + f);
 		configManifestXml(f);
 	}
-	var buildGradle = f.match(/build\.gradle/);
-	if(buildGradle != null){
-		// console.log("find build.gradle : " + f);
-		configBuildGradle(f);
-	}
 });
+
 
 console.log("\n------------  完成自动配置  ------------");
 

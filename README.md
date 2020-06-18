@@ -10,12 +10,14 @@ openinstall-react-native 是openinstall官方开发的 React Native 插件，使
 npm install openinstall-react-native --save
 ```
 
-**React Native 0.60 开始，会自动 link 原生模块**  
+**React Native 0.60 之前**  
 
 ```
 react-native link
 ```
 - link的时候如果出现 `Error: Cannot find module 'asap/raw'` 则先执行 `npm install` 再 `react-native link` 就好了
+
+**React Native 0.60 之后**  
 
 如果你的iOS项目是通过Cocoapods来集成React Native（即原生应用集成react-native），可通过如下步骤安装本插件。（注意：使用 pod 就无须执行 react-native link 了，否则会有冲突。）
 
