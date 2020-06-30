@@ -97,3 +97,17 @@ AppDelegate.m 里面添加如下代码：
  return YES;
 }
 ```
+
+**openinstall完全兼容微信openSDK1.8.6以上版本的通用链接跳转功能，注意微信SDK初始化方法中，传入正确格式的universal link链接：**  
+
+``` objc
+//your_wxAppID从微信后台获取，yourAppkey从openinstall后台获取
+[WXApi registerApp:@"your_wxAppID" universalLink:@"https://yourAppkey.openinstall.io/ulink/"];
+```
+
+微信开放平台后台Universal links配置，要和上面代码中的保持一致  
+
+![微信后台配置](res/wexinUL.jpg)
+
+- 微信SDK更新参考[微信开放平台更新文档](https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Access_Guide/iOS.html)  
+
