@@ -16,6 +16,7 @@ if(schema == undefined || schema == null){
 	schema = appKey;
 }
 
+var isIdfa = process.argv[4];
 var podfileExsit;
 var autoLink;
 
@@ -26,9 +27,22 @@ console.log("---  如自动配置失败，请使用手动配置  ---\n");
 //导入头文件
 function importHeaderFile(path){
 	var rf = fs.readFileSync(path,"utf-8");
-	// 插入 头文件
+	//插入头文件
+    var hasImportAd = rf.match(/AdSupport.h/);
+    if (hasImportAd == null) {
+        if (isIdfa == "iosIDFA"){
+            rf = rf.replace("#import <UIKit/UIKit.h>","#import <UIKit/UIKit.h>\n#import <AdSupport/AdSupport.h>");
+        }
+        if (isIdfa != null){
+            if (isIdfa != "iosIDFA"){
+                console.log("iOS端自动化配置idfa参数输入有误，应该为'iosIDFA'，参考文档");
+            }
+        }
+    }
 	var hasImport = rf.match(/RCTOpenInstall.h/);
 	if (hasImport != null) {
+        fs.writeFileSync(path, rf, "utf-8");
+        console.log(path + " 头文件修改成功\n");
 		return
 	}
 	if (podfileExsit != null) {
@@ -46,11 +60,28 @@ function codeAppDelegate(path){
 	var rf = fs.readFileSync(path,"utf-8");
 	var matchFinishLaunching = rf.match(/\n.*didFinishLaunchingWithOptions.*\n?\{/);
 	if(matchFinishLaunching != null){
-		var hasCoded = rf.match(/OpenInstallSDK initWithDelegate/);
-		if(hasCoded == null){
-			rf = rf.replace(matchFinishLaunching[0], matchFinishLaunching[0] + "\n\t" 
-			+ "[OpenInstallSDK initWithDelegate:[RCTOpenInstall allocWithZone:nil]];");
-		}
+        if (isIdfa == "iosIDFA"){
+            var hasAdCoded = rf.match(/advertisingId/);
+            if(hasAdCoded == null){
+                var hasCoded = rf.match(/OpenInstallSDK initWithDelegate/);
+                if(hasCoded==null){
+                    rf = rf.replace(matchFinishLaunching[0], matchFinishLaunching[0] + "\n\t" + "NSString *idfaStr = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];" + "\n\t" + "[OpenInstallSDK initWithDelegate:[RCTOpenInstall allocWithZone:nil] advertisingId:idfaStr];");
+                }else{
+                    rf = rf.replace("[OpenInstallSDK initWithDelegate:[RCTOpenInstall allocWithZone:nil]];","NSString *idfaStr = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];" + "\n\t" + "[OpenInstallSDK initWithDelegate:[RCTOpenInstall allocWithZone:nil] advertisingId:idfaStr];");
+                }
+            }
+        }else{
+            var hasCoded = rf.match(/OpenInstallSDK initWithDelegate/);
+            if(hasCoded == null){
+                rf = rf.replace(matchFinishLaunching[0], matchFinishLaunching[0] + "\n\t"
+                + "[OpenInstallSDK initWithDelegate:[RCTOpenInstall allocWithZone:nil]];");
+            }else{
+                var hasAdCoded = rf.match(/advertisingId/);
+                if(hasAdCoded != null){
+                    rf = rf.replace("NSString *idfaStr = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];" + "\n\t" + "[OpenInstallSDK initWithDelegate:[RCTOpenInstall allocWithZone:nil] advertisingId:idfaStr];","[OpenInstallSDK initWithDelegate:[RCTOpenInstall allocWithZone:nil]];");
+                }
+            }
+        }
 	}else{
 		console.log("没有匹配到 didFinishLaunchingWithOptions");
 		err = true;
