@@ -54,7 +54,8 @@ $(SRCROOT)/../node_modules/openinstall-react-native/ios/RCTOpenInstall
 
 （1）AppDelegate.h 中添加如下代码，导入头文件
 ```
-#import <RCTOpenInstall/RCTOpenInstall.h>
+#import <RCTOpenInstall/RCTOpenInstall.h> //有些老版本RN可能需要双引号引入#import "RCTOpenInstall/RCTOpenInstall.h"
+
 //通过cocoapod安装插件头文件路径不一样，如下
 #import <openinstall-react-native/RCTOpenInstall.h>
 ```
