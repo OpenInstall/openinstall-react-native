@@ -19,8 +19,18 @@ import com.fm.openinstall.listener.AppInstallAdapter;
 import com.fm.openinstall.listener.AppWakeUpAdapter;
 import com.fm.openinstall.model.AppData;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 public class OpeninstallModule extends ReactContextBaseJavaModule {
-    ReactContext context;
+
+    private static final String TAG = "OpenInstallModule";
+
+    public static final String EVENT = "OpeninstallWakeupCallBack";
+    private ReactContext context;
+    private Intent wakeupIntent = null;
+    private volatile boolean initialized = false;
+    private CountDownLatch countDownLatch = new CountDownLatch(1);
 
     public OpeninstallModule(final ReactApplicationContext reactContext) {
         super(reactContext);
@@ -33,15 +43,45 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onNewIntent(Intent intent) {
-                Log.d("OpenInstallModule", "onNewIntent");
+                Log.d(TAG, "onNewIntent");
                 getWakeUp(intent, null);
             }
         });
     }
 
     @ReactMethod
+    public void init() {
+        Log.d(TAG, "init");
+        if (!initialized) {
+            OpenInstall.init(context);
+            initialized = true;
+            countDownLatch.countDown();
+            if (wakeupIntent != null) {
+                OpenInstall.getWakeUp(wakeupIntent, new AppWakeUpAdapter() {
+                    @Override
+                    public void onWakeUp(AppData appData) {
+                        if (appData != null) {
+                            Log.d(TAG, "getWakeUp : wakeupData = " + appData.toString());
+                            String channel = appData.getChannel();
+                            String data = appData.getData();
+                            WritableMap params = Arguments.createMap();
+                            params.putString("channel", channel);
+                            params.putString("data", data);
+                            getReactApplicationContext()
+                                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                    .emit(EVENT, params);
+                            wakeupIntent = null;
+                        }
+                    }
+                });
+
+            }
+        }
+    }
+
+    @ReactMethod
     public void getWakeUp(final Callback successBack) {
-        Log.d("OpenInstallModule", "getWakeUp");
+        Log.d(TAG, "getWakeUp");
         Activity currentActivity = getCurrentActivity();
         if (currentActivity != null) {
             Intent intent = currentActivity.getIntent();
@@ -51,34 +91,32 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
     }
 
     private void getWakeUp(Intent intent, final Callback callback) {
-        OpenInstall.getWakeUp(intent, new AppWakeUpAdapter() {
-            @Override
-            public void onWakeUp(AppData appData) {
-                if (appData != null) {
-                    Log.d("OpenInstallModule", "getWakeUp : wakeupData = " + appData.toString());
-                    String channel = appData.getChannel();
-                    String data = appData.getData();
-                    WritableMap params = Arguments.createMap();
-                    params.putString("channel", channel);
-                    params.putString("data", data);
+        if (initialized) {
+            OpenInstall.getWakeUp(intent, new AppWakeUpAdapter() {
+                @Override
+                public void onWakeUp(AppData appData) {
+                    if (appData != null) {
+                        Log.d(TAG, "getWakeUp : wakeupData = " + appData.toString());
+                        String channel = appData.getChannel();
+                        String data = appData.getData();
+                        WritableMap params = Arguments.createMap();
+                        params.putString("channel", channel);
+                        params.putString("data", data);
 
-                    if (callback == null) {
-                        getReactApplicationContext()
-                                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                                .emit("OpeninstallWakeupCallBack", params);
-                    } else {
-                        callback.invoke(params);
+                        if (callback == null) {
+                            getReactApplicationContext()
+                                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                    .emit(EVENT, params);
+                        } else {
+                            callback.invoke(params);
+                        }
+
                     }
-
                 }
-            }
-        });
-    }
-
-    @Override
-    public void initialize() {
-        super.initialize();
-        OpenInstall.init(context);
+            });
+        } else {
+            wakeupIntent = intent;
+        }
     }
 
     @Override
@@ -88,12 +126,13 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void getInstall(Integer time, final Callback callback) {
-        Log.d("OpenInstallModule", "getInstall");
+        Log.d(TAG, "getInstall");
+        waitInit();
         OpenInstall.getInstall(new AppInstallAdapter() {
             @Override
             public void onInstall(AppData appData) {
                 try {
-                    Log.d("OpenInstallModule", "getInstall : data = " + appData.toString());
+                    Log.d(TAG, "getInstall : data = " + appData.toString());
                     String channelCode = appData.getChannel();
                     String data = appData.getData();
                     WritableMap params = Arguments.createMap();
@@ -109,15 +148,25 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void reportRegister() {
-        Log.d("OpenInstallModule", "reportRegister");
+        Log.d(TAG, "reportRegister");
+        waitInit();
         OpenInstall.reportRegister();
     }
 
     @ReactMethod
     public void reportEffectPoint(String pointId, Integer pointValue) {
-        Log.d("OpenInstallModule", "reportEffectPoint");
+        Log.d(TAG, "reportEffectPoint");
+        waitInit();
         if (!TextUtils.isEmpty(pointId) && pointValue >= 0) {
             OpenInstall.reportEffectPoint(pointId, pointValue);
+        }
+    }
+
+    private void waitInit() {
+        try {
+            countDownLatch.await(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

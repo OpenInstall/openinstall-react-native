@@ -1,6 +1,7 @@
 # Openinstall React Native Plugin
 openinstall-react-native 是openinstall官方开发的 React Native 插件，使用该插件可以方便快速地集成openinstall相关功能。
 
+**针对使用了 渠道统计 功能中的 广告渠道 效果监测功能的集成，需要参考 [补充文档](#ad)**
 
 # 一、使用 npm 安装插件
 
@@ -126,3 +127,69 @@ OpeninstallModule.reportEffectPoint('effect_test',1)
 ## 四、导出apk/api包并上传
 - 代码集成完毕后，需要导出安装包上传openinstall后台，openinstall会自动完成所有的应用配置工作。  
 - 上传完成后即可开始在线模拟测试，体验完整的App安装/拉起流程；待测试无误后，再完善下载配置信息。  
+
+---
+<a id="ad"></a>
+## 广告平台接入补充文档
+
+**Android 平台**
+
+（1）声明权限  
+在 `AndroidMainfest.xml` 配置文件中添加了需要申请的权限 `<uses-permission android:name="android.permission.READ_PHONE_STATE"/>`
+
+（2）申请权限   
+导入包
+``` js
+import { PermissionsAndroid } from 'react-native'
+```
+在 `App.js` 的 `componentDidMount` 方法中初始化，并且在初始化之前申请权限
+``` js
+this.receiveWakeupListener = map => {    
+    Alert.alert('拉起回调',JSON.stringify(map)) 
+} 
+var permission = PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE;
+PermissionsAndroid.request(permission)
+    .then(granted => {
+        if (granted === PermissionsAndroid.RESULTS.GRANTED){
+            //权限获取成功
+        }else{
+            //权限获取失败
+        }
+        OpeninstallModule.init();
+        OpeninstallModule.addWakeUpListener(this.receiveWakeupListener)
+    })
+```
+
+**iOS 平台**
+
+（1）自动集成
+
+使用自动集成脚本集成代码，如下：
+```
+npm run openinstall <yourAppKey> <yourScheme> iosIDFA
+```
+- yourAppKey指的是你在openinstall官方账号后台，创建应用后分配的AppKey
+- yourScheme指的是你在openinstall官方账号后台，创建应用后分配的scheme  
+（scheme详细获取位置：openinstall应用控制台->Android集成->Android应用配置，iOS同理）  
+
+举例：  
+```
+npm run openinstall e7iomw e7iomw iosIDFA
+```
+
+（2）手动集成
+
+用Xcode打开iOS工程，pod集成的打开xcworkspace类型文件，找到 `AppDelegate.h` 文件，添加头文件
+``` objc
+#import <AdSupport/AdSupport.h>//需要使用idfa时引入
+
+#import <RCTOpenInstall/RCTOpenInstall.h>
+//通过cocoapod安装插件头文件路径不一样，如下
+#import <openinstall-react-native/RCTOpenInstall.h>
+```
+
+在 `AppDelegate.m` 的 `didFinishLaunchingWithOptions` 方法里引用如下初始化方法，传入idfa字符串
+``` objc
+NSString *idfaStr = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+[OpenInstallSDK initWithDelegate:self advertisingId:idfaStr];
+```

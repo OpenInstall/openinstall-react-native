@@ -11,6 +11,16 @@ const listeners = {}
 
 export default class openinstall{
 
+
+/**
+ * 初始化
+ */
+  static init(){
+	  if(Platform.OS == 'Android'){
+		  OpeninstallModule.init()
+	  }
+  }
+
 /**
  * 获取安装动态参数
  * @param {Int} s 超时时长,一般为10~15s 如果只是在后台默默统计或使用参数，可以设置更长时间
