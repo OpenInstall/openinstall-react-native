@@ -14,11 +14,11 @@ export default class openinstall{
 /**
  * 初始化
  */
-  static init(iosIDFA){
+  static init(options){
 	if(Platform.OS == 'Android'){
 		OpeninstallModule.init()
 	}else{
-		OpeninstallModule.initSDK(iosIDFA)
+		OpeninstallModule.initSDK(options)
 	}
   }
 
