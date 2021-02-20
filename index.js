@@ -11,11 +11,19 @@ const listeners = {}
 
 export default class openinstall{
 
+  static config(adEnabled, oaid, gaid){
+      if(Platform.OS === 'android'){
+		  OpeninstallModule.config(adEnabled, oaid, gaid)
+	  }else{
+		  // ignore, platform unsupport
+	  }
+  }
+
 /**
  * 初始化
  */
   static init(options){
-	if(Platform.OS == 'Android'){
+	if(Platform.OS == 'android'){
 		OpeninstallModule.init()
 	}else{
 		OpeninstallModule.initSDK(options)
