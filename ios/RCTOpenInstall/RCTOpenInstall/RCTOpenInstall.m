@@ -53,23 +53,27 @@ static RCTOpenInstall *sharedInstance = nil;
     return sharedInstance;
 }
 
-+ (void)initOpenInstall:(NSString *)adid{
++ (void)initOpenInstall:(NSDictionary *)params{
     [RCTOpenInstall allocWithZone:nil];
     if (!sharedInstance.initStat) {
         sharedInstance.initStat = YES;
-        [OpenInstallSDK initWithDelegate:sharedInstance];
+        NSString *adid = @"";
+        if (params[@"adid"]) {
+            adid = params[@"adid"];
+        }
+        [OpenInstallSDK initWithDelegate:sharedInstance advertisingId:adid];
         [RCTOpenInstall check];
     }
 }
 
-RCT_EXPORT_METHOD(initSDK:(NSString *)adid)
+RCT_EXPORT_METHOD(initSDK:(NSDictionary *)params)
 {
-    [RCTOpenInstall initOpenInstall:adid];
+    [RCTOpenInstall initOpenInstall:params];
 }
 
 RCT_EXPORT_METHOD(getInstall:(int)s completion:(RCTResponseSenderBlock)callback)
 {
-    [RCTOpenInstall initOpenInstall:@""];
+    [RCTOpenInstall initOpenInstall:@{}];
     NSTimeInterval time = 10.0f;
     if (s>0) {
         time = s;
@@ -122,13 +126,13 @@ RCT_EXPORT_METHOD(getWakeUp:(RCTResponseSenderBlock)callback)
 
 RCT_EXPORT_METHOD(reportRegister)
 {
-    [RCTOpenInstall initOpenInstall:@""];
+    [RCTOpenInstall initOpenInstall:@{}];
     [OpenInstallSDK reportRegister];
 }
 
 RCT_EXPORT_METHOD(reportEffectPoint:(NSString *)effectID effectValue:(NSInteger)effectValue)
 {
-    [RCTOpenInstall initOpenInstall:@""];
+    [RCTOpenInstall initOpenInstall:@{}];
     [[OpenInstallSDK defaultManager] reportEffectPoint:effectID effectValue:effectValue];
 }
 
