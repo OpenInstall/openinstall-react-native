@@ -17,9 +17,14 @@
 #import "React/RCTBridgeModule.h"
 #endif
 
+
 //#define OpenInstallWakeUpCallBackNotification @"OpenInstallWakeUpCallBackNotification"
 
 @interface RCTOpenInstall : NSObject<RCTBridgeModule,OpenInstallDelegate>
 
 + (id<OpenInstallDelegate> _Nonnull)allocWithZone:(NSZone *_Nullable)zone;
+
++ (void)handLinkURL:(NSURL *)url;
+
++ (void)continueUserActivity:(NSUserActivity *)userActivity;
 @end

@@ -31,7 +31,10 @@
 
 @interface RCTOpenInstall ()
 @property (nonatomic, strong)NSDictionary *wakeUpParams;
-@property (nonatomic, assign)BOOL notFirstLoad;
+@property (nonatomic, assign)BOOL wakeupStat;
+@property (nonatomic, assign)BOOL initStat;
+@property (nonatomic, strong)NSURL *handleURL;
+@property (nonatomic, strong)NSUserActivity *userActivity;
 @end
 
 @implementation RCTOpenInstall
@@ -40,8 +43,8 @@
 
 RCT_EXPORT_MODULE(OpeninstallModule);
 
+static RCTOpenInstall *sharedInstance = nil;
 + (id)allocWithZone:(NSZone *)zone {
-    static RCTOpenInstall *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedInstance = [super allocWithZone:zone];
@@ -50,9 +53,23 @@ RCT_EXPORT_MODULE(OpeninstallModule);
     return sharedInstance;
 }
 
++ (void)initOpenInstall:(NSString *)adid{
+    [RCTOpenInstall allocWithZone:nil];
+    if (!sharedInstance.initStat) {
+        sharedInstance.initStat = YES;
+        [OpenInstallSDK initWithDelegate:sharedInstance];
+        [RCTOpenInstall check];
+    }
+}
+
+RCT_EXPORT_METHOD(initSDK:(NSString *)adid)
+{
+    [RCTOpenInstall initOpenInstall:adid];
+}
+
 RCT_EXPORT_METHOD(getInstall:(int)s completion:(RCTResponseSenderBlock)callback)
 {
-    
+    [RCTOpenInstall initOpenInstall:@""];
     NSTimeInterval time = 10.0f;
     if (s>0) {
         time = s;
@@ -73,13 +90,15 @@ RCT_EXPORT_METHOD(getInstall:(int)s completion:(RCTResponseSenderBlock)callback)
 - (void)getWakeUpParams:(OpeninstallData *)appData{
     if (!appData.data&&!appData.channelCode) {
         if (self.bridge) {
-            [self.bridge.eventDispatcher sendAppEventWithName:OpeninstallWakeupCallBack body:nil];
+//            [self.bridge.eventDispatcher sendAppEventWithName:OpeninstallWakeupCallBack body:nil];
+            [self.bridge enqueueJSCall:@"RCTDeviceEventEmitter" method:@"emit" args:@[OpeninstallWakeupCallBack] completion:NULL];
         }
         return;
     }
     NSDictionary *params = @{@"channel":appData.channelCode?:@"",@"data":appData.data?:@""};
     if (self.bridge) {
-        [self.bridge.eventDispatcher sendAppEventWithName:OpeninstallWakeupCallBack body:params];
+//        [self.bridge.eventDispatcher sendAppEventWithName:OpeninstallWakeupCallBack body:params];
+        [self.bridge enqueueJSCall:@"RCTDeviceEventEmitter" method:@"emit" args:@[OpeninstallWakeupCallBack,params] completion:NULL];
     }else{
         @synchronized(self){
             self.wakeUpParams = params;
@@ -89,26 +108,64 @@ RCT_EXPORT_METHOD(getInstall:(int)s completion:(RCTResponseSenderBlock)callback)
 
 RCT_EXPORT_METHOD(getWakeUp:(RCTResponseSenderBlock)callback)
 {
-    if (!self.notFirstLoad) {
+    [RCTOpenInstall allocWithZone:nil];
+    if (!self.wakeupStat) {
         if (self.wakeUpParams.count != 0) {
             NSArray *params = @[self.wakeUpParams];
             callback(params);
         }else{
             callback(@[[NSNull null]]);
         }
-        self.notFirstLoad = YES;
+        self.wakeupStat = YES;
     }
 }
 
 RCT_EXPORT_METHOD(reportRegister)
 {
+    [RCTOpenInstall initOpenInstall:@""];
     [OpenInstallSDK reportRegister];
 }
 
 RCT_EXPORT_METHOD(reportEffectPoint:(NSString *)effectID effectValue:(NSInteger)effectValue)
 {
+    [RCTOpenInstall initOpenInstall:@""];
     [[OpenInstallSDK defaultManager] reportEffectPoint:effectID effectValue:effectValue];
 }
 
 
++ (void)handLinkURL:(NSURL *)url{
+    [RCTOpenInstall wakeupParamStored:url];
+}
+
++ (void)continueUserActivity:(NSUserActivity *)userActivity{
+    [RCTOpenInstall wakeupParamStored:userActivity];
+}
+
++ (void)wakeupParamStored:(id)handle{
+    [RCTOpenInstall allocWithZone:nil];
+    if (sharedInstance.initStat) {
+        if ([handle isKindOfClass:[NSURL class]]) {
+            [OpenInstallSDK handLinkURL:(NSURL *)handle];
+        }else{
+            [OpenInstallSDK continueUserActivity:(NSUserActivity *)handle];
+        }
+    }else{
+        if ([handle isKindOfClass:[NSURL class]]) {
+            sharedInstance.handleURL = (NSURL *)handle;
+        }else{
+            sharedInstance.userActivity = (NSUserActivity *)handle;
+        }
+    }
+}
+
++ (void)check{
+    if (sharedInstance.handleURL) {
+        [OpenInstallSDK handLinkURL:sharedInstance.handleURL];
+        sharedInstance.handleURL = nil;
+    }
+    if (sharedInstance.userActivity) {
+        [OpenInstallSDK continueUserActivity:sharedInstance.userActivity];
+        sharedInstance.userActivity = nil;
+    }
+}
 @end
