@@ -1,6 +1,6 @@
 {
   "name": "openinstall-react-native",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "openinstall sdk plugin for react-native",
   "main": "index.js",
   "scripts": {
@@ -19,6 +19,6 @@
     "免填邀请码",
     "一键拉起"
   ],
-  "author": "cooper",
+  "author": "openinstall",
   "license": "ISC"
 }
