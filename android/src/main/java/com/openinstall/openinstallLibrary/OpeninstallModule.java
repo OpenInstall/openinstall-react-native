@@ -12,6 +12,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.fm.openinstall.Configuration;
@@ -25,11 +26,10 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
     private static final String TAG = "OpenInstallModule";
 
     public static final String EVENT = "OpeninstallWakeupCallBack";
-    private ReactContext context;
+    private final ReactContext context;
     private Intent wakeupIntent = null;
     private WritableMap wakeupDataHolder = null;
     private boolean registerWakeup = false;
-    private boolean callInit = false;
     private boolean initialized = false;
     private Configuration configuration = null;
 
@@ -55,20 +55,42 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
         return "OpeninstallModule";
     }
 
+    private boolean optBoolean(ReadableMap map, String key) {
+        if (map.hasKey(key)) {
+            if (map.isNull(key)) return false;
+            return map.getBoolean(key);
+        }
+        return false;
+    }
+
+    private String optString(ReadableMap map, String key) {
+        if (map.hasKey(key)) {
+            return map.getString(key);
+        }
+        return null;
+    }
+
     @ReactMethod
-    public void config(boolean adEnabled, String oaid, String gaid) {
+    public void config(ReadableMap readableMap) {
         Configuration.Builder builder = new Configuration.Builder();
-        builder.adEnabled(adEnabled);
-        builder.oaid(oaid);
-        builder.gaid(gaid);
-        Log.d(TAG, String.format("config adEnabled=%b, oaid=%s, gaid=%s",
-                adEnabled, oaid == null ? "NULL" : oaid, gaid == null ? "NULL" : gaid));
+        builder.adEnabled(optBoolean(readableMap, "adEnabled"));
+        builder.oaid(optString(readableMap, "oaid"));
+        builder.gaid(optString(readableMap, "gaid"));
+        if (optBoolean(readableMap, "macDisabled")) {
+            builder.macDisabled();
+        }
+        if (optBoolean(readableMap, "imeiDisabled")) {
+            builder.imeiDisabled();
+        }
         configuration = builder.build();
+        Log.d(TAG, String.format("Configuration: adEnabled = %s, oaid = %s, gaid = %s, " +
+                        "macDisabled = %s, imeiDisabled = %s",
+                configuration.isAdEnabled(), configuration.getOaid(), configuration.getGaid(),
+                configuration.isMacDisabled(), configuration.isImeiDisabled()));
     }
 
     @ReactMethod
     public void init() {
-        callInit = true;
         OpenInstall.init(context, configuration);
         initialized();
     }
@@ -100,7 +122,6 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
     public void getWakeUp(final Callback successBack) {
         Log.d(TAG, "getWakeUp");
         registerWakeup = true;
-        checkInit();
         if (wakeupDataHolder != null) {
             // 调用getWakeUp注册前就处理过拉起参数了(onNewIntent)
             getReactApplicationContext()
@@ -118,10 +139,6 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
 
     // 可能在用户调用初始化之前调用
     private void getWakeUp(Intent intent, final Callback callback) {
-        boolean isValid = OpenInstall.isValidIntent(intent);
-        if (!isValid) { // 如果不是 openinstall 拉起，忽略
-            return;
-        }
         if (initialized) {
             OpenInstall.getWakeUp(intent, new AppWakeUpAdapter() {
                 @Override
@@ -152,21 +169,16 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getInstall(Integer time, final Callback callback) {
         Log.d(TAG, "getInstall");
-        checkInit();
         OpenInstall.getInstall(new AppInstallAdapter() {
             @Override
             public void onInstall(AppData appData) {
-                try {
-                    Log.d(TAG, "getInstall : data = " + appData.toString());
-                    String channelCode = appData.getChannel();
-                    String data = appData.getData();
-                    WritableMap params = Arguments.createMap();
-                    params.putString("channel", channelCode);
-                    params.putString("data", data);
-                    callback.invoke(params);
-                } catch (Exception e) {
-                    callback.invoke(e);
-                }
+                Log.d(TAG, "getInstall : data = " + appData.toString());
+                String channelCode = appData.getChannel();
+                String data = appData.getData();
+                WritableMap params = Arguments.createMap();
+                params.putString("channel", channelCode);
+                params.putString("data", data);
+                callback.invoke(params);
             }
         }, time);
     }
@@ -174,23 +186,15 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void reportRegister() {
         Log.d(TAG, "reportRegister");
-        checkInit();
         OpenInstall.reportRegister();
     }
 
     @ReactMethod
     public void reportEffectPoint(String pointId, Integer pointValue) {
         Log.d(TAG, "reportEffectPoint");
-        checkInit();
         if (!TextUtils.isEmpty(pointId) && pointValue >= 0) {
             OpenInstall.reportEffectPoint(pointId, pointValue);
         }
     }
 
-    private void checkInit() {
-        if (!callInit) {
-            Log.d(TAG, "插件从1.3.0开始，提供初始化接口，如未调用初始化调用其它接口，插件内部将使用默认配置初始化");
-            init();
-        }
-    }
 }

@@ -11,9 +11,24 @@ const listeners = {}
 
 export default class openinstall{
 
+  // 旧版本接口（1.5.0版本废除）
   static config(adEnabled, oaid, gaid){
       if(Platform.OS === 'android'){
-		  OpeninstallModule.config(adEnabled, oaid, gaid)
+		  var options = {
+			adEnabled : adEnabled,
+			oaid : oaid,
+			gaid : gaid,
+		  }
+		  OpeninstallModule.config(options)
+	  }else{
+		  // ignore, platform unsupport
+	  }
+  }
+  
+  // 1.5.0版本新增，替换config(adEnabled, oaid, gaid)接口
+  static configAndroid(options){
+      if(Platform.OS === 'android'){
+		  OpeninstallModule.config(options)
 	  }else{
 		  // ignore, platform unsupport
 	  }
