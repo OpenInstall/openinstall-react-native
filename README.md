@@ -158,7 +158,7 @@ OpeninstallModule.configAndroid(options);
 options 可选参数如下：
 | 参数名| 参数类型 | 描述 |  
 | --- | --- | --- |
-| adEnabled| bool | 是否需要 SDK 获取广告追踪相关参数 |
+| adEnabled| bool | 广告平台接入开关（必须） |
 | macDisabled | bool | 是否禁止 SDK 获取 mac 地址 |
 | imeiDisabled | bool | 是否禁止 SDK 获取 imei |
 | gaid | string | 通过 google api 获取到的 advertisingId，SDK 将不再获取gaid |

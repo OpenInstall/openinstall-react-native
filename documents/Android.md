@@ -44,7 +44,7 @@ project/android/app/AndroidManifest.xml
 在AndroidManifest.xml的application标签内设置AppKey  
 ``` xml
  <meta-data android:name="com.openinstall.APP_KEY"
-            android:value="OPENINSTALL_APPKEY"/>
+            android:value="openinstall为应用分配的appkey"/>
 
 ```
 
@@ -63,7 +63,7 @@ project/android/app/AndroidManifest.xml
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="OPENINSTALL_SCHEME"/>
+        <data android:scheme="openinstall为应用分配的scheme"/>
     </intent-filter>
 </activity>
 
