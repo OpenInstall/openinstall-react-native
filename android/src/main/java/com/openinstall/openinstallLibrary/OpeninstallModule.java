@@ -18,8 +18,11 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.fm.openinstall.Configuration;
 import com.fm.openinstall.OpenInstall;
 import com.fm.openinstall.listener.AppInstallAdapter;
+import com.fm.openinstall.listener.AppInstallRetryAdapter;
 import com.fm.openinstall.listener.AppWakeUpAdapter;
+import com.fm.openinstall.listener.AppWakeUpListener;
 import com.fm.openinstall.model.AppData;
+import com.fm.openinstall.model.Error;
 
 public class OpeninstallModule extends ReactContextBaseJavaModule {
 
@@ -32,6 +35,8 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
     private boolean registerWakeup = false;
     private boolean initialized = false;
     private Configuration configuration = null;
+
+    private boolean alwaysCallback = false;
 
     public OpeninstallModule(final ReactApplicationContext reactContext) {
         super(reactContext);
@@ -91,7 +96,12 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void init() {
-        OpenInstall.init(context, configuration);
+        if (context.hasCurrentActivity()) {
+            OpenInstall.init(context.getCurrentActivity(), configuration);
+        } else {
+            Log.w(TAG, "init with context, not activity");
+            OpenInstall.init(context, configuration);
+        }
         initialized();
     }
 
@@ -104,11 +114,7 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
                     wakeupIntent = null;
                     if (appData != null) {
                         Log.d(TAG, "getWakeUp : wakeupData = " + appData.toString());
-                        String channel = appData.getChannel();
-                        String data = appData.getData();
-                        WritableMap params = Arguments.createMap();
-                        params.putString("channel", channel);
-                        params.putString("data", data);
+                        WritableMap params = parseData(appData);
                         getReactApplicationContext()
                                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                 .emit(EVENT, params);
@@ -137,19 +143,37 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void getWakeUpAlwaysCallback(final Callback successBack) {
+        Log.d(TAG, "getWakeUpAlwaysCallback");
+        alwaysCallback = true;
+        registerWakeup = true;
+        if (wakeupDataHolder != null) {
+            // 调用getWakeUpAlwaysCallback注册前就处理过拉起参数了(onNewIntent)
+            getReactApplicationContext()
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit(EVENT, wakeupDataHolder);
+            wakeupDataHolder = null;
+        } else {
+            Activity currentActivity = getCurrentActivity();
+            if (currentActivity != null) {
+                Intent intent = currentActivity.getIntent();
+                getWakeUp(intent, successBack);
+            }
+        }
+    }
+
     // 可能在用户调用初始化之前调用
     private void getWakeUp(Intent intent, final Callback callback) {
         if (initialized) {
-            OpenInstall.getWakeUp(intent, new AppWakeUpAdapter() {
-                @Override
-                public void onWakeUp(AppData appData) {
-                    if (appData != null) {
-                        Log.d(TAG, "getWakeUp : wakeupData = " + appData.toString());
-                        String channel = appData.getChannel();
-                        String data = appData.getData();
-                        WritableMap params = Arguments.createMap();
-                        params.putString("channel", channel);
-                        params.putString("data", data);
+            if (alwaysCallback) {
+                OpenInstall.getWakeUpAlwaysCallback(intent, new AppWakeUpListener() {
+                    @Override
+                    public void onWakeUpFinish(AppData appData, Error error) {
+                        if (error != null) {
+                            Log.d(TAG, "getWakeUpAlwaysCallback : " + error.toString());
+                        }
+                        WritableMap params = parseData(appData);
                         if (registerWakeup) {
                             getReactApplicationContext()
                                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
@@ -158,13 +182,26 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
                             wakeupDataHolder = params;
                         }
                     }
-                }
-            });
+                });
+            } else {
+                OpenInstall.getWakeUp(intent, new AppWakeUpAdapter() {
+                    @Override
+                    public void onWakeUp(AppData appData) {
+                        WritableMap params = parseData(appData);
+                        if (registerWakeup) {
+                            getReactApplicationContext()
+                                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                    .emit(EVENT, params);
+                        } else {
+                            wakeupDataHolder = params;
+                        }
+                    }
+                });
+            }
         } else {
             wakeupIntent = intent;
         }
     }
-
 
     @ReactMethod
     public void getInstall(Integer time, final Callback callback) {
@@ -173,11 +210,19 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
             @Override
             public void onInstall(AppData appData) {
                 Log.d(TAG, "getInstall : data = " + appData.toString());
-                String channelCode = appData.getChannel();
-                String data = appData.getData();
-                WritableMap params = Arguments.createMap();
-                params.putString("channel", channelCode);
-                params.putString("data", data);
+                callback.invoke(parseData(appData));
+            }
+        }, time);
+    }
+
+    @ReactMethod
+    public void getInstallCanRetry(Integer time, final Callback callback) {
+        Log.d(TAG, "getInstallCanRetry");
+        OpenInstall.getInstallCanRetry(new AppInstallRetryAdapter() {
+            @Override
+            public void onInstall(AppData appData, boolean retry) {
+                WritableMap params = parseData(appData);
+                params.putBoolean("retry", retry);
                 callback.invoke(params);
             }
         }, time);
@@ -195,6 +240,15 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
         if (!TextUtils.isEmpty(pointId) && pointValue >= 0) {
             OpenInstall.reportEffectPoint(pointId, pointValue);
         }
+    }
+
+    private WritableMap parseData(AppData appData) {
+        WritableMap params = Arguments.createMap();
+        if (appData != null) {
+            params.putString("channel", appData.getChannel());
+            params.putString("data", appData.getData());
+        }
+        return params;
     }
 
 }

@@ -48,7 +48,7 @@ export default class openinstall{
 /**
  * 获取安装动态参数
  * @param {Int} s 超时时长,一般为10~15s 如果只是在后台默默统计或使用参数，可以设置更长时间
- * @param {Function} cb = (result）=> {} data和channel都为空时返回null
+ * @param {Function} cb = (result)=> {} data和channel都为空时返回null
  */
   static getInstall(s,cb){
     OpeninstallModule.getInstall(s,result => {
@@ -56,10 +56,24 @@ export default class openinstall{
       }
     )
   }
+  
+/**
+ * 获取安装动态参数，不会中断初始化读取匹配数据，重试可获取数据
+ * @param {Int} s 超时时长,一般为10~15s 如果只是在后台默默统计或使用参数，可以设置更长时间
+ * @param {Function} cb = (result)=> {} data和channel都为空时返回null
+ */
+  static getInstallCanRetry(s,cb){
+	if(Platform.OS == 'android'){
+		OpeninstallModule.getInstallCanRetry(s,result => {
+			cb(result)
+		  }
+		)
+	}
+  }
  
 /**
  * 监听univeral link或scheme拉起参数回调的方法
- * @param {Function} cb = (result）=> {} data和channel都为空时返回null
+ * @param {Function} cb = (result)=> {} data和channel都为空时返回null
  */
   static addWakeUpListener (cb) {
     OpeninstallModule.getWakeUp(
@@ -74,6 +88,26 @@ export default class openinstall{
 		}
 	)
     
+  }
+  
+/**
+ * Android 监听 scheme 拉起参数回调，不管是否有数据都会回调
+ * @param {Function} cb = (result)=> {} data和channel都为空时返回null
+ */
+  static getWakeUpAlwaysCallback(cb){
+	if(Platform.OS == 'android'){
+		OpeninstallModule.getWakeUpAlwaysCallback(
+		  result => {
+			cb(result)
+		  }
+		)
+		listeners[cb] = DeviceEventEmitter.addListener(
+			receiveWakeUpEvent,
+			result => {
+				cb(result)
+			}
+		)
+	}
   }
 
  /**

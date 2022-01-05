@@ -77,7 +77,7 @@ OpeninstallModule.init()
 > 1.3.0之前的版本 openinstall 插件内部会自动初始化，之后版本需要开发者在合适的时机主动调用初始化接口  
 > iOS用户使用插件1.3.0之前的版本升级到新版本，需要参考新的手动集成文档修改
 
-### 2. 快速安装和一键跳转
+### 2. 快速安装和一键拉起
 
 通常在 `componentDidMount` 中注册唤醒回调监听
 ``` js
@@ -139,7 +139,7 @@ OpeninstallModule.reportEffectPoint('effect_test',1)
 
 ## 如有疑问
 
-若您在集成或使用中有任何疑问或者困难，请 [联系我们](https://www.openinstall.io/)。 
+若您在集成或使用中有任何疑问或者困难，请 [咨询openinstall客服](https://www.openinstall.io/)。 
 
 ---
 
