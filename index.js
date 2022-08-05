@@ -33,6 +33,22 @@ export default class openinstall{
 		  // ignore, platform unsupport
 	  }
   }
+  
+  static serialEnabled(enabled){
+      if(Platform.OS === 'android'){
+		  OpeninstallModule.serialEnabled(enabled)
+	  }else{
+		  // ignore, platform unsupport
+	  }
+  }
+
+  static clipBoardEnabled(enabled){
+      if(Platform.OS === 'android'){
+		  OpeninstallModule.clipBoardEnabled(enabled)
+	  }else{
+		  // ignore, platform unsupport
+	  }
+  }
 
 /**
  * 初始化

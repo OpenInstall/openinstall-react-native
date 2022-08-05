@@ -94,6 +94,16 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
                 configuration.isMacDisabled(), configuration.isImeiDisabled()));
     }
 
+	@ReactMethod
+    public void serialEnabled(boolean enabled){
+        OpenInstall.serialEnabled(enabled);
+    }
+
+    @ReactMethod
+    public void clipBoardEnabled(boolean enabled){
+        OpenInstall.clipBoardEnabled(enabled);
+    }
+
     @ReactMethod
     public void init() {
         if (context.hasCurrentActivity()) {

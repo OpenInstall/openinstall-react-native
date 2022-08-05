@@ -5,11 +5,11 @@ def configVersion(prop, defaultVersion){
 }
 
 android {
-    compileSdkVersion configVersion('compileSdkVersion', 28)
+    compileSdkVersion configVersion('compileSdkVersion', 31)
 
     defaultConfig {
-        minSdkVersion configVersion('minSdkVersion', 14)
-        targetSdkVersion configVersion('targetSdkVersion', 28)
+        minSdkVersion configVersion('minSdkVersion', 16)
+        targetSdkVersion configVersion('targetSdkVersion', 31)
     }
 
 }
