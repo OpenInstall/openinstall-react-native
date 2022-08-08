@@ -103,10 +103,9 @@ RCT_EXPORT_METHOD(getInstall:(int)s completion:(RCTResponseSenderBlock)callback)
     if (self.bridge) {
 //        [self.bridge.eventDispatcher sendAppEventWithName:OpeninstallWakeupCallBack body:params];
         [self.bridge enqueueJSCall:@"RCTDeviceEventEmitter" method:@"emit" args:@[OpeninstallWakeupCallBack,params] completion:NULL];
-    }else{
-        @synchronized(self){
-            self.wakeUpParams = params;
-        }
+    }
+    @synchronized(self){
+        self.wakeUpParams = params;
     }
 }
 
