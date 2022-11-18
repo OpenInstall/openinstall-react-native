@@ -1,6 +1,6 @@
 {
   "name": "openinstall-react-native",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "openinstall sdk plugin for react-native",
   "main": "index.js",
   "scripts": {
