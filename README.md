@@ -129,6 +129,19 @@ OpeninstallModule.reportRegister()
 ``` js
 OpeninstallModule.reportEffectPoint('effect_test',1)
 ```
+#### 4.3 效果点明细统计
+请在 openinstall 控制台的 “效果点管理” 中添加对应的效果点，并启用“记录明细”，添加自定义参数
+``` js
+OpeninstallModule.reportEffectPoint('effect_detail',1, {"k1": "v1", "k2", "v2"})
+```
+### 5. 裂变分享（高级功能）
+分享上报主要是统计某个具体用户在某次分享中，分享给了哪个平台，再通过JS端绑定被分享的用户信息，进一步统计到被分享用户的激活回流等情况。
+``` js
+OpeninstallModule.reportShare("shareCode001", "QQ", map => {
+  Alert.alert("分享结果", JSON.stringify(map))
+})
+```
+可根据返回的数据中的shouldRetry决定是否需要重试，以及message查看失败的原因
 
 ## 四、导出apk/ipa包并上传
 - 代码集成完毕后，需要导出安装包上传openinstall后台，openinstall会自动完成所有的应用配置工作。  
@@ -161,8 +174,8 @@ options 可选参数如下：
 | adEnabled| bool | 广告平台接入开关（必须） |
 | macDisabled | bool | 是否禁止 SDK 获取 mac 地址 |
 | imeiDisabled | bool | 是否禁止 SDK 获取 imei |
-| gaid | string | 通过 google api 获取到的 advertisingId，SDK 将不再获取gaid |
-| oaid | string | 通过移动安全联盟获取到的 oaid，SDK 将不再获取oaid |
+| gaid | string | 通过 google api 获取到的 advertisingId |
+| oaid | string | 通过移动安全联盟获取到的 oaid |
 
 > **注意：** `config(adEnabled, oaid, gaid)` 接口已移除，请开发者使用最新配置接口
 
@@ -191,6 +204,7 @@ PermissionsAndroid.request(permission)
         // openinstall 相关代码
         var options = {
             adEnabled: true,
+            oaid: "通过移动安全联盟获取到的 oaid",
         }
         OpeninstallModule.configAndroid(options);
         OpeninstallModule.init();
