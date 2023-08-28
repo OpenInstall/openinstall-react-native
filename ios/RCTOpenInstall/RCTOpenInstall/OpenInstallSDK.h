@@ -125,14 +125,12 @@
 /**
  * 开发者在需要获取用户安装app后由web网页传递过来的”动态参数“（如邀请码、游戏房间号，渠道编号，ASA渠道编号等）时调用该方法,可第一时间返回数据，可在任意位置调用
  *
- * v2.2.1后默认回调超时时长由5秒(s)修改为为8秒(s)，如无特殊需求，请用此方法，否则可使用高级API
- *
  * @param completedBlock 回调block，在主线程（UI线程）回调
  *
  * @discussion
  1、不要自己保存动态安装参数，在每次需要用到参数时，请调用该方法去获取；
- 2、该方法默认超时为8秒，尽量写在业务场景需要参数的位置调用（在业务场景时，网络一般都是畅通的），例如，可以选择在用户注册成功后调用该方法获取参数，对用户进行奖励。原因是iOS首次安装、首次启动的app，会询问用户获取网络权限，用户允许后SDK才能正常联网去获取参数。如果调用过早，可能导致网络权限还未允许就被调用，导致参数无法及时拿到，误以为参数不存在（此时getInstallParmsCompleted法已超时，回调返回空）；
- 3. 如果是业务需要，必须在application:didFinishLaunchingWithOptions方法中获取参数，可调用下面高级API，修改超时时长，比如15秒或更长，如果只是拿参数在后台“悄悄地”进行数据统计的情况，超时时长设置为半个小时或更长都是ok的，根据需要来。
+ 2、该方法默认超时长一般为8~15秒不同版本会有浮动，使用了ASA则会在30秒左右，尽量写在业务场景需要参数的位置调用（在业务场景时，网络一般都是畅通的），例如，可以选择在用户注册成功后调用该方法获取参数，对用户进行奖励。原因是iOS首次安装、首次启动的app，会询问用户获取网络权限，用户允许后SDK才能正常联网去获取参数。如果调用过早，可能导致网络权限还未允许就被调用，导致参数无法及时拿到，误以为参数不存在（此时getInstallParmsCompleted法已超时，回调返回空）；
+ 3. 如果是业务需要，必须在application:didFinishLaunchingWithOptions方法中获取参数，可调用下面高级API，修改超时时长，比如30秒或更长。
  
  * ***该方法可重复获取参数，如需在首次安装才获取安装参数，请自行判断，参考https://www.openinstall.io/doc/ios_sdk_faq.html***
  */
@@ -202,7 +200,7 @@
  * 渠道效果统计
  *
  * 目前SDK采用定时上报策略，时间间隔由服务器控制
- * e.g.可统计用户支付消费情况,点击次数等
+ * e.g.可统计用户支付消费情况，点击次数等
  *
  * @param effectID 效果点ID
  * @param effectValue 效果点值（如果是人民币金额，请以分为计量单位）
@@ -210,15 +208,40 @@
 -(void)reportEffectPoint:(NSString *_Nonnull)effectID effectValue:(long)effectValue;
 
 
+#pragma mark - added in v2.6.0
 /**
- * 上报广告相关参数
+ * 渠道效果统计，效果明细上报
  *
- * e.g.ASA相关token等
+ * 目前SDK采用定时上报策略，时间间隔由服务器控制
+ * e.g.可统计用户支付消费情况，点击次数，以及效果明细等
  *
- * @param attribution 广告相关参数配置
+ * @param effectID 效果点ID
+ * @param effectValue 效果点值（如果是人民币金额，请以分为计量单位）
+ * @param effectDictionary 效果点明细，key和value都要传入字符串格式
  */
--(void)reportAdsAttribution:(NSDictionary *)attribution __deprecated_msg("Deprecated，请参考方法<code>initWithDelegate:adsAttribution:</code>");;
+-(void)reportEffectPoint:(NSString *_Nonnull)effectID effectValue:(long)effectValue effectDictionary:(NSDictionary*_Nonnull)effectDictionary;
 
+
+#pragma mark - added in v2.7.0
+/**
+ * 分享上报
+ *
+ * @param shareCode 分享用户ID；String 必填
+ * @param sharePlatform 分享平台：String 建议填入 根据已创建好的“OP_SharePlatform”字符串类型填入
+ * @param completedBlock 上报成功code=0，飞行模式/网络差/连接异常code=-1可重试，其它情况代表发生异常错误不需要重试，返回主线程
+ */
+-(void)reportShareParametersWithShareCode:(NSString *_Nonnull)shareCode
+                           sharePlatform:(OP_SharePlatform _Nullable)sharePlatform
+                               completed:(void (^_Nullable)(NSInteger code,NSString *_Nullable msg))completedBlock;
+
+
+#pragma mark - added in v2.8.0
+/**
+ *  获取opid
+ *  初始化后调用，非异步，须真机
+ *  也可以在`getInstallParmsCompleted`方法回调里调用，等待初始化完成后返回opid
+ */
+- (NSString *_Nullable)getOpId;
 
 @end
 

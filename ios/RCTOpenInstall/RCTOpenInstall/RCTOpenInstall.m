@@ -85,7 +85,11 @@ RCT_EXPORT_METHOD(getInstall:(int)s completion:(RCTResponseSenderBlock)callback)
             callback(params);
             return;
         }
-        NSDictionary *dic = @{@"channel":appData.channelCode?:@"",@"data":appData.data?:@""};
+        BOOL shouldRetry = NO;
+        if (appData.opCode==OPCode_timeout) {
+            shouldRetry = YES;
+        }
+        NSDictionary *dic = @{@"channel":appData.channelCode?:@"",@"data":appData.data?:@"",@"shouldRetry":@(shouldRetry)};
         NSArray *params = @[dic];
         callback(params);
     }];
@@ -133,6 +137,30 @@ RCT_EXPORT_METHOD(reportEffectPoint:(NSString *)effectID effectValue:(NSInteger)
 {
     [RCTOpenInstall initOpenInstall:@{}];
     [[OpenInstallSDK defaultManager] reportEffectPoint:effectID effectValue:effectValue];
+}
+
+RCT_EXPORT_METHOD(reportEffectPoint:(NSString *)effectID effectValue:(NSInteger)effectValue effectDictionary:(NSDictionary *)params)
+{
+    [RCTOpenInstall initOpenInstall:@{}];
+    [[OpenInstallSDK defaultManager] reportEffectPoint:effectID effectValue:effectValue effectDictionary:params];
+}
+
+RCT_EXPORT_METHOD(reportShare:(NSString *)shareCode reportPlatform:(NSString *)platform completion:(RCTResponseSenderBlock)callback)
+{
+    [RCTOpenInstall initOpenInstall:@{}];
+    [[OpenInstallSDK defaultManager] reportShareParametersWithShareCode:shareCode
+                                                          sharePlatform:platform
+                                                              completed:^(NSInteger code, NSString * _Nullable msg)
+    {
+        BOOL shouldRetry = NO;
+        if (code==-1){
+            shouldRetry = YES;
+        }
+        NSDictionary *dic = @{@"shouldRetry":@(shouldRetry),@"message":msg};
+        NSArray *params = @[dic];
+        callback(params);
+    }];
+    
 }
 
 
