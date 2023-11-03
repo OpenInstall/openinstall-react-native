@@ -45,6 +45,7 @@ public class OpeninstallModule extends ReactContextBaseJavaModule {
     public OpeninstallModule(final ReactApplicationContext reactContext) {
         super(reactContext);
         context = reactContext;
+        OpenInstall.preInit(context);
         reactContext.addActivityEventListener(new ActivityEventListener() {
             @Override
             public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
