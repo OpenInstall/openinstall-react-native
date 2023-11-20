@@ -1,6 +1,6 @@
 {
   "name": "openinstall-react-native",
-  "version": "1.6.5",
+  "version": "1.7.1",
   "description": "openinstall sdk plugin for react-native",
   "main": "index.js",
   "scripts": {
@@ -18,8 +18,8 @@
     "渠道统计",
     "免填邀请码",
     "一键拉起",
-	"广告效果监测",
-	"渠道归因"
+    "广告效果监测",
+    "渠道归因"
   ],
   "author": "openinstall",
   "license": "ISC"
