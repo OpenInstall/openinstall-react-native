@@ -7,7 +7,7 @@ def configVersion(prop, defaultVersion){
 android {
     compileSdkVersion configVersion('compileSdkVersion', 31)
 
-    namespace "io.openinstall.library"
+    namespace "com.openinstall.openinstallLibrary"
 
     defaultConfig {
         minSdkVersion configVersion('minSdkVersion', 16)
