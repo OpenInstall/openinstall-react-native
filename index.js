@@ -37,6 +37,18 @@ export default class openinstall {
     }
   }
 
+  /**
+   *  1.8.0新增，在初始化init前调用
+   *  @param {*} options 配置 {ASAEnabled: true, ASADebug: true, adEnabled: true, idfaStr: "通过第三方插件获取的 iOS idfa", caid1: "通过广告联盟获取的caid1", caid2: "通过广告联盟获取的caid2"}
+  */
+  static configIOS(options) {
+    if (Platform.OS === 'android') {
+      // ignore, platform unsupport
+    } else {
+      OpeninstallModule.config(options)
+    }
+  }
+
   static serialEnabled(enabled) {
     if (Platform.OS === 'android') {
       OpeninstallModule.serialEnabled(enabled)

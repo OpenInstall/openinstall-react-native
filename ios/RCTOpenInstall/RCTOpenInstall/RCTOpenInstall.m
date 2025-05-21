@@ -7,6 +7,9 @@
 //
 
 #import "RCTOpenInstall.h"
+#import <AdSupport/AdSupport.h>
+#import <AppTrackingTransparency/AppTrackingTransparency.h>//苹果新隐私政策
+#import <AdServices/AAAttribution.h>//ASA
 
 #if __has_include(<React/RCTBridge.h>)
 #import <React/RCTEventDispatcher.h>
@@ -57,13 +60,89 @@ static RCTOpenInstall *sharedInstance = nil;
     [RCTOpenInstall allocWithZone:nil];
     if (!sharedInstance.initStat) {
         sharedInstance.initStat = YES;
+        
         NSString *adid = @"";
         if (params[@"adid"]) {
             adid = params[@"adid"];
+            sharedInstance.idfaStr = adid;//兼容老版本
         }
-        [OpenInstallSDK initWithDelegate:sharedInstance advertisingId:adid];
-        [RCTOpenInstall check];
+        
+        //iOS14.5苹果隐私政策正式启用
+        if (sharedInstance.adEnable) {
+            if (@available(iOS 14, *)) {
+                [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+                    [self OpInit];
+                }];
+            }else{
+                [self OpInit];
+            }
+        }else{
+            [self OpInit];
+        }
+        
     }
+}
+
+
+
++ (void)OpInit{
+    //ASA广告归因
+    NSMutableDictionary *config = [[NSMutableDictionary alloc]init];
+    if (@available(iOS 14.3, *)) {
+        NSError *error;
+        NSString *token = [AAAttribution attributionTokenWithError:&error];
+        if (sharedInstance.ASAEnable) {
+            [config setValue:token forKey:OP_ASA_Token];
+        }
+        if (sharedInstance.ASADebug) {
+            [config setValue:@(YES) forKey:OP_ASA_isDev];
+        }
+    }
+    //第三方广告平台统计代码
+    NSString *idfaStr;
+    if (sharedInstance.adEnable) {
+        if (sharedInstance.idfaStr.length > 0) {
+            idfaStr = sharedInstance.idfaStr;
+        }else{
+            idfaStr = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+        }
+        [config setValue:idfaStr forKey:OP_Idfa_Id];
+        
+        //caid
+        if (sharedInstance.caid1.length > 0) {
+            [config setValue:sharedInstance.caid1 forKey:app_caid1];
+        }
+        if (sharedInstance.caid2.length > 0) {
+            [config setValue:sharedInstance.caid2 forKey:app_caid2];
+        }
+    }else{
+        //兼容老版本
+        if (sharedInstance.idfaStr.length > 0) {
+            idfaStr = sharedInstance.idfaStr;
+            [config setValue:idfaStr forKey:OP_Idfa_Id];
+        }
+    }
+    
+    if (!sharedInstance.ASAEnable && !sharedInstance.adEnable) {
+        [OpenInstallSDK initWithDelegate:sharedInstance];
+    }else{
+        [OpenInstallSDK initWithDelegate:sharedInstance adsAttribution:config];
+    }
+    
+    [RCTOpenInstall check];
+    
+}
+
+RCT_EXPORT_METHOD(config:(NSDictionary *)params)
+{
+    [RCTOpenInstall allocWithZone:nil];
+    
+    self.adEnable = [params[@"adEnabled"] boolValue];
+    self.ASAEnable = [params[@"ASAEnabled"] boolValue];
+    self.idfaStr = params[@"idfaStr"];
+    self.ASADebug = [params[@"ASADebug"] boolValue];
+    self.caid1 = params[@"caid1"];
+    self.caid2 = params[@"caid2"];
 }
 
 RCT_EXPORT_METHOD(initSDK:(NSDictionary *)params)

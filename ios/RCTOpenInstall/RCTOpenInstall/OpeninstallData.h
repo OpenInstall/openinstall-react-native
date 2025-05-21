@@ -243,6 +243,8 @@ typedef NS_ENUM(NSUInteger,OP_Codes) {
 extern NSString *const OP_Idfa_Id;//用于第三方广告平台统计
 extern NSString *const OP_ASA_Token;//用于苹果ASA搜索广告
 extern NSString *const OP_ASA_isDev;//added in v2.5.6 用于ASA debug测试，正式环境下“不要”设置为YES
+extern NSString *const app_caid1;
+extern NSString *const app_caid2;
 
 @interface OpeninstallData : NSObject<NSCopying>
 
