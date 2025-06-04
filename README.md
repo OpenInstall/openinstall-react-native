@@ -221,6 +221,6 @@ PermissionsAndroid.request(permission)
 ### iOS 平台
 使用第三方插件获取iOS idfa 并传给 openinstall 插件进行初始化
 ``` js
-var options = {adid: "通过第三方插件获取的 iOS idfa"}
+var options = {ASAEnabled: true, ASADebug: true, adEnabled: true, idfaStr: "通过第三方插件获取的 iOS idfa", caid1: "通过广告联盟获取的caid1", caid2: "通过广告联盟获取的caid2"}
 OpeninstallModule.init(options);
 ```

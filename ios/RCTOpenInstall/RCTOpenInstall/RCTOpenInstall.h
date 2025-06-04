@@ -29,7 +29,10 @@
 @property (copy, nonatomic) NSString *caid1;
 @property (copy, nonatomic) NSString *caid2;
 
-+ (id<OpenInstallDelegate> _Nonnull)allocWithZone:(NSZone *_Nullable)zone;
+@property (copy, nonatomic) NSString *ASA;
+
+
++ (id)shareInstance;
 
 + (void)handLinkURL:(NSURL *)url;
 

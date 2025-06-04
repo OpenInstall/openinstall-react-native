@@ -67,6 +67,7 @@ export default class openinstall {
 
   /**
    * 初始化
+   *  @param {*} options iOS可选择配置 {ASA: "ASA",ASAEnabled: true, ASADebug: true, adEnabled: true, idfaStr: "通过第三方插件获取的 iOS idfa", caid1: "通过广告联盟获取的caid1", caid2: "通过广告联盟获取的caid2"}
    */
   static init(options) {
     if (Platform.OS == 'android') {

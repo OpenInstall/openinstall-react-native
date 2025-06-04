@@ -47,26 +47,23 @@
 RCT_EXPORT_MODULE(OpeninstallModule);
 
 static RCTOpenInstall *sharedInstance = nil;
-+ (id)allocWithZone:(NSZone *)zone {
++ (id)shareInstance{
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [super allocWithZone:zone];
-        sharedInstance.wakeUpParams = [[NSDictionary alloc] init];
+        if (sharedInstance == nil) {
+            sharedInstance = [[RCTOpenInstall alloc]init];
+            sharedInstance.wakeUpParams = [[NSDictionary alloc] init];
+        }
     });
     return sharedInstance;
 }
 
+
 + (void)initOpenInstall:(NSDictionary *)params{
-    [RCTOpenInstall allocWithZone:nil];
+    [RCTOpenInstall shareInstance];
     if (!sharedInstance.initStat) {
         sharedInstance.initStat = YES;
-        
-        NSString *adid = @"";
-        if (params[@"adid"]) {
-            adid = params[@"adid"];
-            sharedInstance.idfaStr = adid;//兼容老版本
-        }
-        
+                
         //iOS14.5苹果隐私政策正式启用
         if (sharedInstance.adEnable) {
             if (@available(iOS 14, *)) {
@@ -91,11 +88,16 @@ static RCTOpenInstall *sharedInstance = nil;
     if (@available(iOS 14.3, *)) {
         NSError *error;
         NSString *token = [AAAttribution attributionTokenWithError:&error];
-        if (sharedInstance.ASAEnable) {
+        if (sharedInstance.ASAEnable || [sharedInstance.ASA isEqualToString:@"ASA"]) {
             [config setValue:token forKey:OP_ASA_Token];
         }
         if (sharedInstance.ASADebug) {
             [config setValue:@(YES) forKey:OP_ASA_isDev];
+        }else{
+#ifdef DEBUG
+    [config setValue:@(YES) forKey:OP_ASA_isDev];
+#else
+#endif
         }
     }
     //第三方广告平台统计代码
@@ -123,11 +125,12 @@ static RCTOpenInstall *sharedInstance = nil;
         }
     }
     
-    if (!sharedInstance.ASAEnable && !sharedInstance.adEnable) {
-        [OpenInstallSDK initWithDelegate:sharedInstance];
-    }else{
-        [OpenInstallSDK initWithDelegate:sharedInstance adsAttribution:config];
-    }
+//    if (!sharedInstance.ASAEnable && !sharedInstance.adEnable) {
+//        [OpenInstallSDK initWithDelegate:sharedInstance];
+//    }else{
+//        [OpenInstallSDK initWithDelegate:sharedInstance adsAttribution:config];
+//    }
+    [OpenInstallSDK initWithDelegate:sharedInstance adsAttribution:config];
     
     [RCTOpenInstall check];
     
@@ -135,24 +138,52 @@ static RCTOpenInstall *sharedInstance = nil;
 
 RCT_EXPORT_METHOD(config:(NSDictionary *)params)
 {
-    [RCTOpenInstall allocWithZone:nil];
+    NSLog(@"OpenInstall Config Params: %@", params);
     
-    self.adEnable = [params[@"adEnabled"] boolValue];
-    self.ASAEnable = [params[@"ASAEnabled"] boolValue];
-    self.idfaStr = params[@"idfaStr"];
-    self.ASADebug = [params[@"ASADebug"] boolValue];
-    self.caid1 = params[@"caid1"];
-    self.caid2 = params[@"caid2"];
+    [RCTOpenInstall shareInstance];
+    
+    @synchronized([RCTOpenInstall class]) {
+        self.adEnable = [params[@"adEnabled"] boolValue];
+        self.ASAEnable = [params[@"ASAEnabled"] boolValue];
+        self.idfaStr = params[@"idfaStr"]?:@"";
+        self.ASADebug = [params[@"ASADebug"] boolValue];
+        self.caid1 = params[@"caid1"]?:@"";
+        self.caid2 = params[@"caid2"]?:@"";
+    }
+    
 }
 
 RCT_EXPORT_METHOD(initSDK:(NSDictionary *)params)
 {
+    RCTOpenInstall *shareInstance = [RCTOpenInstall shareInstance];
+    NSLog(@"OpenInstall Init params: %@", params);
+    NSLog(@"OpenInstall Init adEnabled = %d,\nASAEnabled = %d,\nASADebug = %d,\nidfaStr = %@,\ncaid1 = %@,\ncaid2 = %@,\nASA =%@,\nadid = %@",shareInstance.adEnable,shareInstance.ASAEnable,shareInstance.ASADebug,shareInstance.idfaStr,shareInstance.caid1,shareInstance.caid2,shareInstance.ASA,params[@"adid"]);
+    @synchronized([RCTOpenInstall class]) {
+        if ([params.allKeys containsObject:@"idfaStr"] && params[@"idfaStr"]) {
+            self.idfaStr = params[@"idfaStr"];
+        }else{
+            NSString *adid = @"";
+            if (params[@"adid"]) {
+                adid = params[@"adid"];
+                self.idfaStr = adid;//兼容老版本
+            }
+        }
+        self.adEnable = [params[@"adEnabled"] boolValue];
+        self.ASAEnable = [params[@"ASAEnabled"] boolValue];
+        self.ASADebug = [params[@"ASADebug"] boolValue];
+        self.caid1 = params[@"caid1"]?:@"";
+        self.caid2 = params[@"caid2"]?:@"";
+        
+        self.ASA = params[@"ASA"]?:@"";
+    }
+    
     [RCTOpenInstall initOpenInstall:params];
 }
 
+
 RCT_EXPORT_METHOD(getInstall:(int)s completion:(RCTResponseSenderBlock)callback)
 {
-    [RCTOpenInstall initOpenInstall:@{}];
+//    [RCTOpenInstall initOpenInstall:@{}];
     NSTimeInterval time = 10.0f;
     if (s>0) {
         time = s;
@@ -208,25 +239,25 @@ RCT_EXPORT_METHOD(getWakeUp:(RCTResponseSenderBlock)callback)
 
 RCT_EXPORT_METHOD(reportRegister)
 {
-    [RCTOpenInstall initOpenInstall:@{}];
+//    [RCTOpenInstall initOpenInstall:@{}];
     [OpenInstallSDK reportRegister];
 }
 
 RCT_EXPORT_METHOD(reportEffectPoint:(NSString *)effectID effectValue:(NSInteger)effectValue)
 {
-    [RCTOpenInstall initOpenInstall:@{}];
+//    [RCTOpenInstall initOpenInstall:@{}];
     [[OpenInstallSDK defaultManager] reportEffectPoint:effectID effectValue:effectValue];
 }
 
 RCT_EXPORT_METHOD(reportEffectPoint:(NSString *)effectID effectValue:(NSInteger)effectValue effectDictionary:(NSDictionary *)params)
 {
-    [RCTOpenInstall initOpenInstall:@{}];
+//    [RCTOpenInstall initOpenInstall:@{}];
     [[OpenInstallSDK defaultManager] reportEffectPoint:effectID effectValue:effectValue effectDictionary:params];
 }
 
 RCT_EXPORT_METHOD(reportShare:(NSString *)shareCode reportPlatform:(NSString *)platform completion:(RCTResponseSenderBlock)callback)
 {
-    [RCTOpenInstall initOpenInstall:@{}];
+//    [RCTOpenInstall initOpenInstall:@{}];
     [[OpenInstallSDK defaultManager] reportShareParametersWithShareCode:shareCode
                                                           sharePlatform:platform
                                                               completed:^(NSInteger code, NSString * _Nullable msg)
