@@ -32,9 +32,9 @@
 @property (copy, nonatomic) NSString *ASA;
 
 
-+ (id)shareInstance;
+//+ (id)shareInstance;
 
-+ (void)handLinkURL:(NSURL *)url;
+- (void)handLinkURL:(NSURL *)url;
 
-+ (void)continueUserActivity:(NSUserActivity *)userActivity;
+- (void)continueUserActivity:(NSUserActivity *)userActivity;
 @end

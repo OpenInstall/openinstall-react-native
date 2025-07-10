@@ -65,34 +65,19 @@ function codeAppDelegate(path){
 		var hasCodedTrash = rf.match(/OpenInstallSDK handLinkURL/);
 		if(hasCodedTrash != null){
 			rf = rf.replace("[OpenInstallSDK handLinkURL:url];","\n");
-			console.log(path + "\n插件版本1.3.0开始，新方法[RCTOpenInstall handLinkURL:]将替代原先的[OpenInstallSDK handLinkURL:]方法\n");
 		}
 		var hasCoded = rf.match(/RCTOpenInstall handLinkURL/);
 		if(hasCoded == null){
 			rf = rf.replace(matchOpenURL1[0], matchOpenURL1[0] 
 			+ "\n\t\/\/openURL1" 
-			+ "\n\t[RCTOpenInstall handLinkURL:url];");
+			+ "\n\tAppDelegate *delegate = (AppDelegate *)[UIApplication sharedApplication].delegate;"
+			+ "\n\tRCTBridge *mainBridge = delegate.bridge;"
+			+ "\n\tRCTOpenInstall *module = [mainBridge moduleForClass:[RCTOpenInstall class]];"
+			+ "\n\t[module handLinkURL:url];");
 		}
 
 	}
-	var matchOpenURL2 = rf.match(/\n.*openURL.*sourceApplication.*\n?\{/);
-	if(matchOpenURL2 == null){
-		rf = rf.replace("@end","- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation{"
-		+ "\n\t\/\/openURL2"
-		+ "\n\t[RCTOpenInstall handLinkURL:url];\n\treturn YES;\n}"
-		+ "\n@end");
-	}else{
-		var hasCodedTrash = rf.match(/OpenInstallSDK handLinkURL/);
-		if(hasCodedTrash != null){
-			rf = rf.replace("[OpenInstallSDK handLinkURL:url];","\n");
-			console.log(path + "\n插件版本1.3.0开始，新方法[RCTOpenInstall handLinkURL:]将替代原先的[OpenInstallSDK handLinkURL:]方法\n");
-		}
-		var hasCoded = rf.match(/openURL2\n.*RCTOpenInstall handLinkURL/);
-		if(hasCoded == null){
-			rf = rf.replace(matchOpenURL2[0], matchOpenURL2[0] + "\n\t\/\/openURL2" + "\n\t[RCTOpenInstall handLinkURL:url];");
-		}
 
-	}
 	
 	var matchContinueUserActivity = rf.match(/\n.*continueUserActivity.*\n?\{/);
 	if(matchContinueUserActivity == null){
@@ -104,11 +89,16 @@ function codeAppDelegate(path){
 		var hasCodedTrash = rf.match(/OpenInstallSDK continueUserActivity/);
 		if(hasCodedTrash != null){
 			rf = rf.replace("[OpenInstallSDK continueUserActivity:userActivity];","\n");
-			console.log(path +"\n插件版本1.3.0开始，新方法[RCTOpenInstall continueUserActivity:]将替代原先的[OpenInstallSDK continueUserActivity:]方法\n");
+			console.log(path +"\n插件版本1.3.0开始，新方法将替代原先的[OpenInstallSDK continueUserActivity:]方法\n");
 		}
 		var hasCoded = rf.match(/RCTOpenInstall continueUserActivity/);
 		if(hasCoded == null){
-			rf = rf.replace(matchContinueUserActivity[0], matchContinueUserActivity[0] + "\n\t" + "[RCTOpenInstall continueUserActivity:userActivity];");
+			rf = rf.replace(matchContinueUserActivity[0], matchContinueUserActivity[0] 
+			+ "\n\t" 
+			+ "\n\tAppDelegate *delegate = (AppDelegate *)[UIApplication sharedApplication].delegate;"
+			+ "\n\tRCTBridge *mainBridge = delegate.bridge;"
+			+ "\n\tRCTOpenInstall *module = [mainBridge moduleForClass:[RCTOpenInstall class]];"
+			+ "[module continueUserActivity:userActivity];");
 		}
 
 	}

@@ -46,6 +46,7 @@
 
 RCT_EXPORT_MODULE(OpeninstallModule);
 
+/*
 static RCTOpenInstall *sharedInstance = nil;
 + (id)shareInstance{
     static dispatch_once_t onceToken;
@@ -57,15 +58,23 @@ static RCTOpenInstall *sharedInstance = nil;
     });
     return sharedInstance;
 }
+*/
 
+- (instancetype)init{
+    self = [super init];
+    if (self) {
+        
+    }
+    return self;
+}
 
-+ (void)initOpenInstall:(NSDictionary *)params{
-    [RCTOpenInstall shareInstance];
-    if (!sharedInstance.initStat) {
-        sharedInstance.initStat = YES;
+- (void)initOpenInstall:(NSDictionary *)params{
+    //[RCTOpenInstall shareInstance];
+    if (!self.initStat) {
+        self.initStat = YES;
                 
         //iOS14.5苹果隐私政策正式启用
-        if (sharedInstance.adEnable) {
+        if (self.adEnable) {
             if (@available(iOS 14, *)) {
                 [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
                     [self OpInit];
@@ -82,16 +91,16 @@ static RCTOpenInstall *sharedInstance = nil;
 
 
 
-+ (void)OpInit{
+- (void)OpInit{
     //ASA广告归因
     NSMutableDictionary *config = [[NSMutableDictionary alloc]init];
     if (@available(iOS 14.3, *)) {
         NSError *error;
         NSString *token = [AAAttribution attributionTokenWithError:&error];
-        if (sharedInstance.ASAEnable || [sharedInstance.ASA isEqualToString:@"ASA"]) {
+        if (self.ASAEnable || [self.ASA isEqualToString:@"ASA"]) {
             [config setValue:token forKey:OP_ASA_Token];
         }
-        if (sharedInstance.ASADebug) {
+        if (self.ASADebug) {
             [config setValue:@(YES) forKey:OP_ASA_isDev];
         }else{
 #ifdef DEBUG
@@ -102,25 +111,25 @@ static RCTOpenInstall *sharedInstance = nil;
     }
     //第三方广告平台统计代码
     NSString *idfaStr;
-    if (sharedInstance.adEnable) {
-        if (sharedInstance.idfaStr.length > 0) {
-            idfaStr = sharedInstance.idfaStr;
+    if (self.adEnable) {
+        if (self.idfaStr.length > 0) {
+            idfaStr = self.idfaStr;
         }else{
             idfaStr = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
         }
         [config setValue:idfaStr forKey:OP_Idfa_Id];
         
         //caid
-        if (sharedInstance.caid1.length > 0) {
-            [config setValue:sharedInstance.caid1 forKey:app_caid1];
+        if (self.caid1.length > 0) {
+            [config setValue:self.caid1 forKey:app_caid1];
         }
-        if (sharedInstance.caid2.length > 0) {
-            [config setValue:sharedInstance.caid2 forKey:app_caid2];
+        if (self.caid2.length > 0) {
+            [config setValue:self.caid2 forKey:app_caid2];
         }
     }else{
         //兼容老版本
-        if (sharedInstance.idfaStr.length > 0) {
-            idfaStr = sharedInstance.idfaStr;
+        if (self.idfaStr.length > 0) {
+            idfaStr = self.idfaStr;
             [config setValue:idfaStr forKey:OP_Idfa_Id];
         }
     }
@@ -130,9 +139,9 @@ static RCTOpenInstall *sharedInstance = nil;
 //    }else{
 //        [OpenInstallSDK initWithDelegate:sharedInstance adsAttribution:config];
 //    }
-    [OpenInstallSDK initWithDelegate:sharedInstance adsAttribution:config];
+    [OpenInstallSDK initWithDelegate:self adsAttribution:config];
     
-    [RCTOpenInstall check];
+    [self check];
     
 }
 
@@ -140,7 +149,7 @@ RCT_EXPORT_METHOD(config:(NSDictionary *)params)
 {
     NSLog(@"OpenInstall Config Params: %@", params);
     
-    [RCTOpenInstall shareInstance];
+//    [RCTOpenInstall shareInstance];
     
     @synchronized([RCTOpenInstall class]) {
         self.adEnable = [params[@"adEnabled"] boolValue];
@@ -155,9 +164,9 @@ RCT_EXPORT_METHOD(config:(NSDictionary *)params)
 
 RCT_EXPORT_METHOD(initSDK:(NSDictionary *)params)
 {
-    RCTOpenInstall *shareInstance = [RCTOpenInstall shareInstance];
+//    RCTOpenInstall *shareInstance = [RCTOpenInstall shareInstance];
     NSLog(@"OpenInstall Init params: %@", params);
-    NSLog(@"OpenInstall Init adEnabled = %d,\nASAEnabled = %d,\nASADebug = %d,\nidfaStr = %@,\ncaid1 = %@,\ncaid2 = %@,\nASA =%@,\nadid = %@",shareInstance.adEnable,shareInstance.ASAEnable,shareInstance.ASADebug,shareInstance.idfaStr,shareInstance.caid1,shareInstance.caid2,shareInstance.ASA,params[@"adid"]);
+    NSLog(@"OpenInstall Init adEnabled = %d,\nASAEnabled = %d,\nASADebug = %d,\nidfaStr = %@,\ncaid1 = %@,\ncaid2 = %@,\nASA =%@,\nadid = %@",self.adEnable,self.ASAEnable,self.ASADebug,self.idfaStr,self.caid1,self.caid2,self.ASA,params[@"adid"]);
     @synchronized([RCTOpenInstall class]) {
         if ([params.allKeys containsObject:@"idfaStr"] && params[@"idfaStr"]) {
             self.idfaStr = params[@"idfaStr"];
@@ -177,7 +186,7 @@ RCT_EXPORT_METHOD(initSDK:(NSDictionary *)params)
         self.ASA = params[@"ASA"]?:@"";
     }
     
-    [RCTOpenInstall initOpenInstall:params];
+    [self initOpenInstall:params];
 }
 
 
@@ -274,17 +283,17 @@ RCT_EXPORT_METHOD(reportShare:(NSString *)shareCode reportPlatform:(NSString *)p
 }
 
 
-+ (void)handLinkURL:(NSURL *)url{
-    [RCTOpenInstall wakeupParamStored:url];
+- (void)handLinkURL:(NSURL *)url{
+    [self wakeupParamStored:url];
 }
 
-+ (void)continueUserActivity:(NSUserActivity *)userActivity{
-    [RCTOpenInstall wakeupParamStored:userActivity];
+- (void)continueUserActivity:(NSUserActivity *)userActivity{
+    [self wakeupParamStored:userActivity];
 }
 
-+ (void)wakeupParamStored:(id)handle{
+- (void)wakeupParamStored:(id)handle{
     [RCTOpenInstall allocWithZone:nil];
-    if (sharedInstance.initStat) {
+    if (self.initStat) {
         if ([handle isKindOfClass:[NSURL class]]) {
             [OpenInstallSDK handLinkURL:(NSURL *)handle];
         }else{
@@ -292,21 +301,21 @@ RCT_EXPORT_METHOD(reportShare:(NSString *)shareCode reportPlatform:(NSString *)p
         }
     }else{
         if ([handle isKindOfClass:[NSURL class]]) {
-            sharedInstance.handleURL = (NSURL *)handle;
+            self.handleURL = (NSURL *)handle;
         }else{
-            sharedInstance.userActivity = (NSUserActivity *)handle;
+            self.userActivity = (NSUserActivity *)handle;
         }
     }
 }
 
-+ (void)check{
-    if (sharedInstance.handleURL) {
-        [OpenInstallSDK handLinkURL:sharedInstance.handleURL];
-        sharedInstance.handleURL = nil;
+- (void)check{
+    if (self.handleURL) {
+        [OpenInstallSDK handLinkURL:self.handleURL];
+        self.handleURL = nil;
     }
-    if (sharedInstance.userActivity) {
-        [OpenInstallSDK continueUserActivity:sharedInstance.userActivity];
-        sharedInstance.userActivity = nil;
+    if (self.userActivity) {
+        [OpenInstallSDK continueUserActivity:self.userActivity];
+        self.userActivity = nil;
     }
 }
 @end

@@ -46,7 +46,7 @@
 ##### 注意：
 
 - 在 iOS 工程中如果找不到头文件可能要在 TARGETS-> BUILD SETTINGS -> Search Paths -> Header Search Paths 添加如下如路径：
-````
+``` objc
 $(SRCROOT)/../node_modules/openinstall-react-native/ios/RCTOpenInstall
 ````
 
@@ -54,7 +54,6 @@ $(SRCROOT)/../node_modules/openinstall-react-native/ios/RCTOpenInstall
 
 （1）AppDelegate.h 中添加如下代码，导入头文件
 ```
-#import <RCTOpenInstall/RCTOpenInstall.h>
 //通过cocoapod安装插件头文件路径不一样，如下
 #import <openinstall-react-native/RCTOpenInstall.h>
 ```
@@ -63,35 +62,30 @@ $(SRCROOT)/../node_modules/openinstall-react-native/ios/RCTOpenInstall
 **为配合隐私政策合规方案，即App首次安装需要用户手动同意后，才可初始化SDK**  
 **插件版本1.3.0开始，初始化代码改由用户主动调用方式，在react native端入口js文件中（例如App.js文件）调用init方法**  
 
-插件版本1.3.0之前的初始化方案：  
-即在AppDelegate.m 的 `didFinishLaunchingWithOptions` 方法里面添加代码（[OpenInstallSDK initWithDelegate:[RCTOpenInstall allocWithZone:nil]];），如果升级1.3.0，可删除该代码  
-
 
 （3）scheme相关代码  
 AppDelegate.m 里面添加如下代码：  
-**插件版本1.3.0开始，[OpenInstallSDK handLinkURL:url]方法改为[RCTOpenInstall handLinkURL:url]，由插件内部完成后续工作**  
 ```
 //iOS9以上，会优先走这个方法
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options{
  //openURL1
- [RCTOpenInstall handLinkURL:url];
- return YES;
-}
-//适用目前所有iOS版本
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation{
- //openURL2
- [RCTOpenInstall handLinkURL:url];
+  AppDelegate *delegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+  RCTBridge *mainBridge = delegate.bridge;
+  RCTOpenInstall *module = [mainBridge moduleForClass:[RCTOpenInstall class]];
+  [module handLinkURL:url];
  return YES;
 }
 ```
 
 （4）universal link相关代码  
 AppDelegate.m 里面添加如下代码：  
-**插件版本1.3.0开始，[OpenInstallSDK continueUserActivity:userActivity]方法改为[RCTOpenInstall continueUserActivity:userActivity]，由插件内部完成后续工作**  
 ```
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler{
  //univeral link
- [RCTOpenInstall continueUserActivity:userActivity];
+  AppDelegate *delegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+  RCTBridge *mainBridge = delegate.bridge;
+  RCTOpenInstall *module = [mainBridge moduleForClass:[RCTOpenInstall class]];
+  [module continueUserActivity:userActivity];
  return YES;
 }
 ```
